@@ -275,7 +275,7 @@ body{
 
 /* ===== Hero slider: líneas clickeables ===== */
 .a-hero__card{ position:relative; }
-.a-hero__hit{ position:absolute; inset:0; z-index:1; }
+.a-hero__hit{ position:absolute; inset:0; z-index:3; display:block; }
 
 .a-hero__lines,
 .a-hero__h1,
