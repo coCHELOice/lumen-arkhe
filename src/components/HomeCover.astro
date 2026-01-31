@@ -1,0 +1,249 @@
+﻿---
+import { getCollection } from "astro:content";
+
+const siteTitle = "Lumen Arkhé";
+
+const secciones = [
+  { name: "Ensayos", href: "/articulos?sec=Ensayos" },
+  { name: "Entrevistas", href: "/articulos?sec=Entrevistas" },
+  { name: "Reseñas", href: "/articulos?sec=Reseñas" },
+  { name: "Crónica", href: "/articulos?sec=Crónica" },
+  { name: "Archivo PDF", href: "/pdf" },
+];
+
+const FALLBACK_IMG = "/images/hero/fallback.jpg";
+const heroBySlug = (slug) => `/images/hero/${slug}.jpg`;
+
+// 1) Leer artículos reales
+const entries = await getCollection("articulos");
+const published = entries
+  .filter((e) => !e.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// 2) Hero/Slide: featured primero; si hay menos de 4, completa con recientes
+let heroSource = published.filter((e) => e.data.featured).slice(0, 4);
+
+if (heroSource.length < 4) {
+  const picked = new Set(heroSource.map((e) => e.slug));
+  const fill = published
+    .filter((e) => !picked.has(e.slug))
+    .slice(0, 4 - heroSource.length);
+
+  heroSource = heroSource.concat(fill);
+}
+
+if (heroSource.length === 0) heroSource = published.slice(0, 4);
+
+// 3) Normalizar featuredItems
+const featuredItems = heroSource.map((e) => ({
+  slug: e.slug,
+  title: e.data.title,
+  excerpt: e.data.deck ?? e.data.description ?? "",
+  author: e.data.author ?? "Lumen Arkhé",
+  href: `/articulos/${e.slug}`,
+  image: e.data.hero ?? heroBySlug(e.slug),
+}));
+
+// 4) “Artículos destacados”: últimos 3
+const latest = published.slice(0, 3).map((e) => ({
+  title: e.data.title,
+  deck: e.data.deck ?? e.data.description ?? "",
+  date: e.data.date.toISOString().slice(0, 10),
+  href: `/articulos/${e.slug}`,
+  tag: e.data.tag ?? e.data.section,
+}));
+
+// 5) Temas: de la data real (máx 8 para no ensuciar)
+const temas = Array.from(
+  new Set(published.flatMap((e) => e.data.temas ?? []))
+).slice(0, 8);
+---
+
+
+<div class="a-wrap">
+  <header class="a-head">
+    <div class="a-head__top">
+      <div class="a-lang">
+        <a class="a-lang__on" href="#" aria-current="true">ES</a>
+        <span class="a-dot">•</span>
+        <a class="a-lang__off" href="#">EN</a>
+      </div>
+
+      <div class="a-title">
+        <a class="a-title__brand" href="/">{siteTitle.toUpperCase()}</a>
+      </div>
+
+      <a class="a-ingresa" href="#">INGRESA</a>
+    </div>
+
+    <nav class="a-menu" aria-label="Secciones">
+      {secciones.map((s) => (
+        <a class="a-menu__a" href={s.href}>{s.name.toUpperCase()}</a>
+      ))}
+      <span class="a-bar" aria-hidden="true">|</span>
+      <a class="a-menu__a" href="/articulos">BÚSQUEDA</a>
+    </nav>
+  </header>
+
+  <section class="a-hero" aria-label="Destacado">
+    <a class="a-hero__img" href={featuredItems[0].href} aria-label={featuredItems[0].title}>
+      <img
+  src={featuredItems[0].image}
+  alt=""
+  loading="lazy"
+  decoding="async"
+  onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
+    />
+    </a>
+
+    <!-- Card ya NO es link (para que dots no pierdan el click).
+         El link real es .a-hero__hit (overlay), detrás de los dots. -->
+    <div class="a-hero__card" id="heroCard" aria-label="Abrir destacado">
+      <a class="a-hero__hit" href={featuredItems[0].href} aria-label={`Abrir: ${featuredItems[0].title}`}></a>
+
+      <div class="a-hero__lines" id="heroDots" role="tablist" aria-label="Destacados">
+        {featuredItems.map((_, i) => (
+          <button
+            class={`a-dotbtn ${i === 0 ? "is-on" : ""}`}
+            type="button"
+            data-i={i}
+            aria-label={`Destacado ${i + 1}`}
+          >
+            <span></span>
+          </button>
+        ))}
+      </div>
+
+      <h1 class="a-hero__h1">{featuredItems[0].title}</h1>
+      <p class="a-hero__p">{featuredItems[0].excerpt}</p>
+
+      <div class="a-hero__rule" aria-hidden="true"></div>
+      <div class="a-hero__by">{String(featuredItems[0].author).toUpperCase()}</div>
+    </div>
+
+    <script type="application/json" id="heroData" set:html={JSON.stringify(featuredItems)}></script>
+
+    <script is:inline confirm data-astro-rerun>
+      (() => {
+        const dataEl = document.getElementById("heroData");
+        let data = [];
+        try {
+          data = JSON.parse(dataEl?.textContent || "[]");
+        } catch {}
+        if (!Array.isArray(data) || !data.length) return;
+
+        const root = document.querySelector(".a-hero");
+        if (!root) return;
+
+        const hit = root.querySelector(".a-hero__hit");
+        const title = root.querySelector(".a-hero__h1");
+        const excerpt = root.querySelector(".a-hero__p");
+        const by = root.querySelector(".a-hero__by");
+        const imgLink = root.querySelector(".a-hero__img");
+        const img = root.querySelector(".a-hero__img img");
+        const dots = Array.from(root.querySelectorAll('#heroDots button[data-i]'));
+
+        let idx = 0;
+
+        const render = () => {
+          const it = data[idx];
+
+          if (hit) {
+            hit.setAttribute("href", it.href);
+            hit.setAttribute("aria-label", `Abrir: ${it.title}`);
+          }
+          if (title) title.textContent = it.title;
+          if (excerpt) excerpt.textContent = it.excerpt;
+          if (by) by.textContent = String(it.author || "").toUpperCase();
+
+          if (imgLink) {
+            imgLink.setAttribute("href", it.href);
+            imgLink.setAttribute("aria-label", it.title);
+          }
+          if (img) {
+  img.onerror = () => { img.onerror = null; img.src = "/images/hero/fallback.jpg"; };
+  img.setAttribute("src", it.image || "/images/hero/fallback.jpg");
+          }
+
+
+          dots.forEach((b, i) => b.classList.toggle("is-on", i === idx));
+        };
+
+        dots.forEach((b) => {
+          b.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const n = Number(b.getAttribute("data-i"));
+            if (Number.isFinite(n)) {
+              idx = n;
+              render();
+            }
+          };
+        });
+
+        // auto-rotate + pause on hover/focus + stop when tab hidden
+        const KEY = "__lumenHeroTimer";
+        const stop = () => {
+          if (window[KEY]) {
+            clearInterval(window[KEY]);
+            window[KEY] = null;
+          }
+        };
+        const start = () => {
+          stop();
+          window[KEY] = setInterval(() => {
+            idx = (idx + 1) % data.length;
+            render();
+          }, 9000);
+        };
+
+        root.addEventListener("mouseenter", stop);
+        root.addEventListener("mouseleave", start);
+        root.addEventListener("focusin", stop);
+        root.addEventListener("focusout", start);
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) stop();
+          else start();
+        });
+
+        render();
+        start();
+      })();
+    </script>
+  </section>
+
+  <section class="a-section">
+    <div class="a-section__row">
+      <h2 class="a-section__h2">Artículos destacados</h2>
+      <div class="a-section__rule" aria-hidden="true"></div>
+    </div>
+
+    <ol class="a-list">
+      {latest.map((p) => (
+        <li class="a-li">
+          <a class="a-li__a" href={p.href}>
+            <div class="a-li__meta">
+              <span>{p.date}</span>
+              <span class="a-dot">•</span>
+              <span>{p.tag}</span>
+            </div>
+            <div class="a-li__t">{p.title}</div>
+            <div class="a-li__d">{p.deck}</div>
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <div class="a-topics">
+      <span class="a-topics__t">Temas</span>
+      {temas.map((t, i) => (
+        <>
+          <a class="a-topics__a" href={`/articulos?tema=${encodeURIComponent(t)}`}>{t}</a>
+          {i < temas.length - 1 ? <span class="a-dot">•</span> : null}
+        </>
+      ))}
+    </div>
+  </section>
+
+  <footer class="a-foot">© {new Date().getFullYear()} {siteTitle}.</footer>
+</div>

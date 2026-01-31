@@ -1,0 +1,18 @@
+---
+const { title = "Lumen Arkhé", description = "" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description ? <meta name="description" content={description} /> : null}
+    <link rel="stylesheet" href="/styles/atomo.css" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+

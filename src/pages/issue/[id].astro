@@ -1,0 +1,223 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection, getEntryBySlug } from "astro:content";
+
+export async function getStaticPaths() {
+  const issues = await getCollection("issues");
+  return issues.map((e) => ({ params: { id: e.id } }));
+}
+
+const siteTitle = "Lumen Arkhé";
+const { id } = Astro.params;
+
+const issue = (await getCollection("issues")).find((e) => e.id === id);
+if (!issue) throw new Error("Número no encontrado");
+
+const isPrint = Astro.url.searchParams.get("print") === "1";
+const showFull = import.meta.env.DEV || isPrint; // en producción: índice/muestra; en local: completo
+
+const slugs = issue.data.articleSlugs ?? [];
+
+const articles = [];
+for (const s of slugs) {
+  const entry = await getEntryBySlug("articulos", s);
+  if (!entry) continue;
+
+  let Content = null;
+  if (showFull) {
+    const rendered = await entry.render();
+    Content = rendered.Content;
+  }
+
+  articles.push({ slug: entry.slug, data: entry.data, Content });
+}
+
+const cover = issue.data.cover ?? "/images/hero/fallback.jpg";
+const buyUrl = issue.data.buyUrl ?? "";
+const period = issue.data.period ?? "";
+const pdf = issue.data.pdf ?? "";
+
+---
+
+<Base title={`${issue.data.title} — ${siteTitle}`} description={period}>
+  <div class="a-wrap">
+    <header class="a-head">
+      <div class="a-head__top">
+        <a class="a-back" href="/pdf">← Archivo PDF</a>
+        <a class="a-back" href="/articulos">Artículos</a>
+      </div>
+
+      <div class="a-issueHero">
+        <div class="a-issueHero__cover">
+          <img src={cover} alt="" loading="lazy" decoding="async" />
+        </div>
+
+        <div class="a-issueHero__meta">
+          <div class="a-kicker">NÚMERO</div>
+          <h1 class="a-title">{issue.data.title}</h1>
+          {period ? <p class="a-period">{period}</p> : null}
+
+         <div class="a-actions">
+  {pdf ? (
+    <a class="a-btn" href={pdf} target="_blank" rel="noreferrer">
+      Abrir PDF
+    </a>
+  ) : null}
+
+  {buyUrl ? (
+    <a class="a-btn a-btn--primary" href={buyUrl} target="_blank" rel="noreferrer">
+      Comprar PDF
+    </a>
+  ) : null}
+
+
+            {import.meta.env.DEV ? (
+              <a class="a-btn" href={`/issue/${id}?print=1`}>Exportar (Ctrl+P)</a>
+            ) : null}
+          </div>
+
+          <p class="a-note">
+            Web: artículos públicos. PDF: edición maquetada (colección) para vender.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="a-issue">
+      <section class="a-toc">
+        <h2 class="a-toc__title">Índice</h2>
+
+        {articles.length === 0 ? (
+          <p style="opacity:.78">Este número no tiene artículos (slugs vacíos o inválidos).</p>
+        ) : (
+          <ol class="a-toc__list">
+            {articles.map((a) => (
+              <li class="a-toc__item">
+                <a href={`/articulos/${a.slug}`} class="a-toc__link">
+                  <span class="a-toc__main">{a.data.title}</span>
+                  <span class="a-toc__sub">
+                    {(a.data.deck ?? a.data.description ?? "").slice(0, 120)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      {!showFull ? (
+        <section class="a-preview">
+          <h2 style="margin:0 0 10px;">Muestra</h2>
+          <p style="margin:0; opacity:.8; max-width: 70ch;">
+            Esta página muestra el índice y enlaces a los artículos. El PDF del número (maquetado) es el producto vendible.
+            En local (DEV) puedes ver el número completo y exportarlo.
+          </p>
+        </section>
+      ) : (
+        <section class="a-full">
+          {articles.map((a) => (
+            <article class="a-issueArticle">
+              <header class="a-issueArticle__head">
+                <div class="a-issueArticle__meta">
+                  <span>{a.data.section ?? ""}</span>
+                  <span class="a-dot">•</span>
+                  <span>{a.data.date?.toLocaleDateString?.("es-CL") ?? ""}</span>
+                  {a.data.author ? <span class="a-dot">•</span> : null}
+                  {a.data.author ? <span>{a.data.author}</span> : null}
+                </div>
+
+                <h2 class="a-issueArticle__title">{a.data.title}</h2>
+
+                {(a.data.deck ?? a.data.description) ? (
+                  <p class="a-issueArticle__deck">{a.data.deck ?? a.data.description}</p>
+                ) : null}
+
+                <p class="a-issueArticle__link">
+                  <a href={`/articulos/${a.slug}`}>Ver en web</a>
+                </p>
+              </header>
+
+              <div class="a-issueArticle__body">
+                {a.Content ? <a.Content /> : null}
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+    </main>
+  </div>
+
+  <style>
+    .a-wrap{ max-width: 980px; margin: 0 auto; padding: 40px 18px; }
+    .a-head__top{ display:flex; gap:12px; justify-content: space-between; margin-bottom: 18px; }
+    .a-back{ text-decoration:none; opacity:.8; font-size: 13px; }
+
+    .a-issueHero{ display:grid; grid-template-columns: 220px 1fr; gap: 18px; align-items: stretch; }
+    .a-issueHero__cover{ height: 140px; overflow:hidden; border: 1px solid rgba(0,0,0,.12); background: rgba(0,0,0,.04); }
+    .a-issueHero__cover img{ width:100%; height:100%; object-fit: cover; display:block; }
+    .a-kicker{ letter-spacing: .18em; font-size: 11px; opacity: .7; }
+    .a-title{ margin: 6px 0 6px; font-size: 34px; line-height: 1.05; }
+    .a-period{ margin: 0 0 10px; opacity:.75; }
+
+    .a-actions{ display:flex; gap:8px; flex-wrap: wrap; margin: 10px 0 8px; }
+    .a-btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 7px 10px; border: 1px solid rgba(0,0,0,.22);
+      text-decoration:none; font-size: 13px;
+      background: rgba(255,255,255,.35);
+    }
+    .a-btn--primary{ background: rgba(0,0,0,.85); color: #fff; border-color: rgba(0,0,0,.85); }
+    .a-note{ margin: 0; opacity:.7; font-size: 12px; max-width: 70ch; }
+
+    .a-issue{ margin-top: 22px; }
+    .a-toc{ border-top: 1px solid rgba(0,0,0,.12); padding-top: 16px; }
+    .a-toc__title{ margin: 0 0 10px; font-size: 16px; letter-spacing: .18em; opacity: .7; }
+    .a-toc__list{ margin: 0; padding-left: 18px; display:grid; gap: 8px; }
+    .a-toc__item{ }
+    .a-toc__link{ text-decoration:none; display:block; padding: 10px 10px; border: 1px solid rgba(0,0,0,.10); background: rgba(255,255,255,.25); }
+    .a-toc__main{ display:block; font-weight: 600; }
+    .a-toc__sub{ display:block; opacity:.75; font-size: 12px; margin-top: 4px; }
+
+    .a-preview{ margin-top: 18px; padding: 16px; border: 1px solid rgba(0,0,0,.12); background: rgba(255,255,255,.25); }
+
+    .a-issueArticle{ margin-top: 26px; padding-top: 18px; border-top: 1px solid rgba(0,0,0,.12); }
+    .a-issueArticle__meta{ display:flex; gap:8px; align-items:center; opacity:.75; font-size: 12px; }
+    .a-dot{ opacity:.5; }
+    .a-issueArticle__title{ margin: 8px 0 8px; font-size: 28px; line-height: 1.08; }
+    .a-issueArticle__deck{ margin: 0 0 8px; opacity:.8; max-width: 70ch; }
+    .a-issueArticle__link{ margin: 0 0 14px; font-size: 13px; opacity:.85; }
+    .a-issueArticle__body{ max-width: 76ch; }
+
+    @media (max-width: 720px){
+      .a-issueHero{ grid-template-columns: 1fr; }
+      .a-issueHero__cover{ height: 180px; }
+    }
+
+    /* PRINT: esto es lo que te acerca a “revista” sin complicarte todavía */
+    @media print {
+      .a-head__top, .a-actions, .a-note, .a-preview, .a-toc__link { display: none !important; }
+      .a-wrap{ max-width: none; padding: 0; }
+      .a-issueHero{ grid-template-columns: 1fr; }
+      .a-issueHero__cover{ height: 220px; }
+
+      /* cuerpo en 2 columnas, estilo revista */
+      .a-issueArticle__body{
+        max-width: none;
+        column-count: 2;
+        column-gap: 42px;
+      }
+      .a-issueArticle__body h2,
+      .a-issueArticle__body h3,
+      .a-issueArticle__body blockquote,
+      .a-issueArticle__body pre {
+        break-inside: avoid;
+      }
+      .a-issueArticle{
+        break-before: page;
+      }
+    }
+  </style>
+</Base>
+
+
+

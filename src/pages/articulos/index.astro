@@ -1,0 +1,141 @@
+---
+import Base from "../../layouts/Base.astro";
+
+type AnyPost = { slug: string; data: any; render?: () => Promise<{ Content: any }> };
+
+function toDateSafe(v: any): Date | null {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  const d = new Date(String(v));
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtDate(v: any): string {
+  const d = toDateSafe(v);
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+let posts: AnyPost[] = [];
+try {
+  const { getCollection } = await import("astro:content");
+  const entries = await getCollection("articulos");
+  posts = entries.map((e: any) => ({ slug: e.slug, data: e.data ?? {}, render: e.render?.bind(e) }));
+} catch {
+  const modules = import.meta.glob("/src/content/articulos/**/*.{md,mdx}", { eager: true }) as Record<string, any>;
+  posts = Object.entries(modules).map(([path, mod]) => {
+    const slug = path.split("/").pop()?.replace(/\.(md|mdx)$/i, "") ?? path;
+    const data = mod.frontmatter ?? mod.metadata ?? {};
+    return { slug, data };
+  });
+}
+
+posts.sort((a, b) => {
+  const da = toDateSafe(a.data.date) ?? new Date(0);
+  const db = toDateSafe(b.data.date) ?? new Date(0);
+  return db.getTime() - da.getTime();
+});
+
+const sec = Astro.url.searchParams.get("sec");
+const tema = Astro.url.searchParams.get("tema");
+const q = (Astro.url.searchParams.get("q") || "").trim().toLowerCase();
+
+const filtered = posts.filter((p) => {
+  const section = String(p.data.section ?? p.data.seccion ?? "");
+  const tagsStr = String(p.data.tag ?? p.data.tema ?? "");
+  const tagsArr = Array.isArray(p.data.tags) ? p.data.tags : [];
+  const title = String(p.data.title ?? "");
+  const deck = String(p.data.deck ?? p.data.description ?? p.data.excerpt ?? "");
+  const hay = `${title} ${deck} ${section} ${tagsStr} ${tagsArr.join(" ")}`.toLowerCase();
+
+  if (sec && section !== sec) return false;
+  if (tema && !(tagsStr.includes(tema) || tagsArr.includes(tema))) return false;
+  if (q && !hay.includes(q)) return false;
+  return true;
+});
+
+const siteTitle = "Lumen Arkhé";
+const sections = [
+  { label: "Ensayos", href: "/articulos?sec=Ensayos" },
+  { label: "Entrevistas", href: "/articulos?sec=Entrevistas" },
+  { label: "Reseñas", href: "/articulos?sec=Reseñas" },
+  { label: "Crónica", href: "/articulos?sec=Crónica" },
+];
+const extras = [
+  { label: "Archivo PDF", href: "/pdf" },
+  { label: "Newsletter", href: "/newsletter" },
+];
+---
+
+<Base title={`Artículos — ${siteTitle}`} description="Archivo de textos.">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="lang">
+        <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
+      </div>
+      <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:10px">
+      <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
+      <nav class="nav" aria-label="Secciones">
+        {sections.map((i) => <a href={i.href}>{i.label}</a>)}
+        <span class="sep" aria-hidden="true"> · </span>
+        {extras.map((i) => <a href={i.href}>{i.label}</a>)}
+      </nav>
+    </div>
+
+    <div class="search">
+      <form method="get" action="/articulos">
+        <input type="text" name="q" value={q} placeholder="Búsqueda" />
+        <button type="submit">Buscar</button>
+      </form>
+      {(sec || tema || q) ? <a class="small" href="/articulos">Limpiar filtros</a> : null}
+    </div>
+
+    <hr class="rule" />
+
+    <h1>Artículos</h1>
+    {(sec || tema || q) ? (
+      <p class="lede">
+        {sec ? <>Sección: <b>{sec}</b>. </> : null}
+        {tema ? <>Tema: <b>{tema}</b>. </> : null}
+        {q ? <>Búsqueda: <b>{q}</b>. </> : null}
+        Resultados: <b>{filtered.length}</b>.
+      </p>
+    ) : (
+      <p class="lede">Archivo editorial.</p>
+    )}
+
+    <ol class="list">
+      {filtered.map((p) => {
+        const title = String(p.data.title ?? p.slug);
+        const deck = String(p.data.deck ?? p.data.description ?? p.data.excerpt ?? "");
+        const author = String(p.data.author ?? p.data.autor ?? "");
+        const section = String(p.data.section ?? p.data.seccion ?? "");
+        const date = fmtDate(p.data.date);
+        return (
+          <li class="li">
+            <a href={`/articulos/${p.slug}`}>
+              <div class="meta">
+                {section ? <span>{section}</span> : null}
+                {date ? <span>{date}</span> : null}
+                {author ? <span>{author}</span> : null}
+              </div>
+              <div class="title">{title}</div>
+              {deck ? <div class="deck">{deck}</div> : null}
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+
+    <footer class="footer">
+      <span>© {new Date().getFullYear()} {siteTitle}.</span>
+    </footer>
+  </div>
+</Base>
+
+
