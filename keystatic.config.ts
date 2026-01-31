@@ -11,44 +11,38 @@ export default config({
       path: "src/content/articulos/*",
       format: { contentField: "content" },
 
-      // Esto hace que Keystatic genere el slug del archivo desde el título,
-      // y te muestra UN solo "Slug" (el del nombre del archivo).
-      // ...
-slugField: "title",
+      slugField: "title",
 
-schema: {
-  title: fields.slug({
-    name: {
-      label: "Título",
-      validation: { isRequired: true },
-    },
-    slug: {
-      label: "Slug (URL)",
-      description:
-        "Se genera desde el título. Solo minúsculas, números y guiones. Ej: la-ventanilla-y-el-algoritmo",
-      validation: {
-        pattern: {
-          regex: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-          message: "Usa solo minúsculas, números y guiones (sin tildes ni símbolos).",
-        },
-      },
-    },
-  }),
-// ...
-
+      schema: {
+        title: fields.slug({
+          name: {
+            label: "Título",
+            validation: { isRequired: true },
+          },
+          slug: {
+            label: "Slug (URL)",
+            description:
+              "Se genera desde el título. Solo minúsculas, números y guiones. Ej: la-ventanilla-y-el-algoritmo",
+            validation: {
+              pattern: {
+                regex: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+                message:
+                  "Usa solo minúsculas, números y guiones (sin tildes ni símbolos).",
+              },
+            },
+          },
+        }),
 
         date: fields.date({
           label: "Fecha",
           validation: { isRequired: true },
         }),
 
-        // Tu bajada principal (lo que aparece bajo el título / en home)
         deck: fields.text({
           label: "Bajada (deck)",
           multiline: true,
         }),
 
-        // Compatibilidad: si algún artículo viejo usa "description", no se rompe nada
         description: fields.text({
           label: "Descripción (fallback)",
           multiline: true,
@@ -58,11 +52,36 @@ schema: {
           label: "Sección",
           options: [
             { label: "Ensayos", value: "Ensayos" },
-            { label: "Entrevistas", value: "Entrevistas" },
             { label: "Reseñas", value: "Reseñas" },
             { label: "Crónica", value: "Crónica" },
           ],
           defaultValue: "Ensayos",
+        }),
+
+        // RESEÑAS — ficha de la obra (opcionales)
+        workTitle: fields.text({
+          label: "Reseña — Obra: Título (opcional)",
+        }),
+        workAuthor: fields.text({
+          label: "Reseña — Obra: Autor (opcional)",
+        }),
+        workYear: fields.text({
+          label: "Reseña — Obra: Año (opcional)",
+        }),
+        workUrl: fields.url({
+          label: "Reseña — Obra: Link (opcional)",
+        }),
+
+        // CRÓNICA — ficha del hecho (opcionales)
+        chroniclePlace: fields.text({
+          label: "Crónica — Lugar (opcional)",
+        }),
+        chronicleDate: fields.date({
+          label: "Crónica — Fecha del hecho (opcional)",
+        }),
+        chronicleCase: fields.text({
+          label: "Crónica — Caso / nota breve (opcional)",
+          multiline: true,
         }),
 
         tag: fields.text({
@@ -129,6 +148,7 @@ schema: {
           directory: "public/images/issues",
           publicPath: "/images/issues",
         }),
+
         pdf: fields.file({
           label: "PDF (archivo)",
           directory: "public/issues",
@@ -152,4 +172,3 @@ schema: {
     }),
   },
 });
-
