@@ -1,9 +1,18 @@
 import { config, fields, collection } from "@keystatic/core";
 
+const isGithub = process.env.KEYSTATIC_STORAGE === "github";
+const repo = process.env.KEYSTATIC_GITHUB_REPO;
+
+if (isGithub && !repo) {
+  throw new Error(
+    "Keystatic GitHub mode activado pero falta KEYSTATIC_GITHUB_REPO (formato: OWNER/REPO)."
+  );
+}
+
 export default config({
-  storage: {
-    kind: "local",
-  },
+  storage: isGithub
+    ? { kind: "github", repo: repo as string }
+    : { kind: "local" },
 
   collections: {
     articulos: collection({
@@ -172,3 +181,4 @@ export default config({
     }),
   },
 });
+
