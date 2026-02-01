@@ -1,11 +1,19 @@
-import { config, fields, collection } from '@keystatic/core';
+import { config } from '@keystatic/core';
 
-const repo = 'coCHELOice/lumen-arkhe';
+const isProd = import.meta.env.PROD;
 
 export default config({
-  storage: import.meta.env.PROD
-    ? { kind: 'github', repo }
+  storage: isProd
+    ? {
+        kind: 'github',
+        // repo en formato "owner/name"
+        repo: 'coCHELOice/lumen-arkhe',
+        // Opcional: si quieres acotar ramas, usa branchPrefix
+        // branchPrefix: 'keystatic/'
+      }
     : { kind: 'local' },
+
+  // ... aquí van tus collections/singletons tal como ya las tienes
 
   collections: {
     articulos: collection({
@@ -30,3 +38,5 @@ export default config({
     }),
   },
 });
+
+
