@@ -1,4 +1,4 @@
-import { config } from '@keystatic/core';
+import { config, fields, collection } from '@keystatic/core';
 
 const isProd = import.meta.env.PROD;
 
@@ -8,35 +8,39 @@ export default config({
         kind: 'github',
         // repo en formato "owner/name"
         repo: 'coCHELOice/lumen-arkhe',
-        // Opcional: si quieres acotar ramas, usa branchPrefix
-        // branchPrefix: 'keystatic/'
+        // opcional, si quieres limitar ramas que Keystatic maneja:
+        // branchPrefix: 'keystatic/',
       }
     : { kind: 'local' },
-
-  // ... aquí van tus collections/singletons tal como ya las tienes
 
   collections: {
     articulos: collection({
       label: 'Artículos',
-      path: 'src/content/articulos/*',
       slugField: 'title',
+      path: 'src/content/articulos/*',
       schema: {
         title: fields.slug({ name: { label: 'Título' } }),
         deck: fields.text({ label: 'Bajada', multiline: true }),
         date: fields.date({ label: 'Fecha' }),
         draft: fields.checkbox({ label: 'Borrador' }),
+
+        // RECOMENDADO: guarda imágenes en /public (no en /src/assets)
         image: fields.image({
           label: 'Imagen',
-          directory: 'src/assets/articulos',
-          publicPath: '/src/assets/articulos',
+          directory: 'public/assets/articulos',
+          publicPath: '/assets/articulos/',
         }),
+
         body: fields.markdoc({
           label: 'Contenido',
-          options: { image: { directory: 'src/assets/articulos', publicPath: '/src/assets/articulos' } },
+          options: {
+            image: {
+              directory: 'public/assets/articulos',
+              publicPath: '/assets/articulos/',
+            },
+          },
         }),
       },
     }),
   },
 });
-
-
