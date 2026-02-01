@@ -1,19 +1,32 @@
-import { defineConfig } from '@keystatic/core';
-import { github, localStorage } from '@keystatic/core/storage';
+import { config, fields, collection } from '@keystatic/core';
 
-const isProd = process.env.NODE_ENV === 'production';
+const repo = 'coCHELOice/lumen-arkhe';
 
-export default defineConfig({
-  storage: isProd
-    ? github({
-        repo: process.env.KEYSTATIC_GITHUB_REPO!,
-        contentPath: 'content',
-        auth: {
-          appSlug: process.env.PUBLIC_KEYSTATIC_GITHUB_APP_SLUG!,
-          clientId: process.env.KEYSTATIC_GITHUB_CLIENT_ID!,
-          clientSecret: process.env.KEYSTATIC_GITHUB_CLIENT_SECRET!,
-        },
-      })
-    : localStorage(),
-  // ... tu config de collections, etc.
+export default config({
+  storage: import.meta.env.PROD
+    ? { kind: 'github', repo }
+    : { kind: 'local' },
+
+  collections: {
+    articulos: collection({
+      label: 'Artículos',
+      path: 'src/content/articulos/*',
+      slugField: 'title',
+      schema: {
+        title: fields.slug({ name: { label: 'Título' } }),
+        deck: fields.text({ label: 'Bajada', multiline: true }),
+        date: fields.date({ label: 'Fecha' }),
+        draft: fields.checkbox({ label: 'Borrador' }),
+        image: fields.image({
+          label: 'Imagen',
+          directory: 'src/assets/articulos',
+          publicPath: '/src/assets/articulos',
+        }),
+        body: fields.markdoc({
+          label: 'Contenido',
+          options: { image: { directory: 'src/assets/articulos', publicPath: '/src/assets/articulos' } },
+        }),
+      },
+    }),
+  },
 });
