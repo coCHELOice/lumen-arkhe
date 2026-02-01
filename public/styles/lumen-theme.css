@@ -1,0 +1,179 @@
+/* =========================================================
+   LUMEN ARKHÉ — Theme Patch (v1)
+   Objetivo: paleta moderna + fondo dividido + hero consistente
+   + imágenes en blanco y negro (con excepción .no-bw)
+   ---------------------------------------------------------
+   Uso recomendado (Astro):
+   1) Guarda este archivo como: /public/styles/lumen-theme.css
+   2) Cárgalo DESPUÉS de atomo.css (para que haga override).
+   ========================================================= */
+
+/* ---------- 1) Variables (un solo :root, sin duplicados) ---------- */
+:root{
+  color-scheme: light;
+
+  /* Tipos / layout */
+  --max: 980px;
+  --serif: Georgia, "Times New Roman", Times, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Paleta A */
+  --bg-top: #fbfaf7;                 /* blanco cálido */
+  --bg-bottom: #f1f6ff;              /* azul humo */
+  --paper: #ffffff;                  /* superficies */
+  --ink: #141414;                    /* texto */
+  --muted: rgb(20 20 20 / 0.62);     /* texto secundario */
+  --rule: rgb(20 20 20 / 0.16);      /* líneas */
+
+  --accent: #2563eb;                 /* contraste (azul moderno) */
+  --card: rgb(31 41 55 / 0.86);      /* panel “no beige” */
+  --card-ink: rgb(255 255 255 / 0.92);
+
+  /* Compatibilidad con tu CSS existente */
+  --bg: var(--bg-top);
+  --fg: var(--ink);
+  --hair: rgb(0 0 0 / 0.12);
+  --hover: rgb(0 0 0 / 0.035);
+
+  /* Corte del fondo */
+  --split-at: 520px; /* prueba 420px si quieres el corte más arriba */
+
+  /* HERO: tamaño */
+  --hero-max: 420px;                   /* ancho máximo de la imagen */
+  --hero-h: clamp(210px, 26vw, 320px); /* alto consistente img + tarjeta */
+
+  /* Blanco y negro global: 1 = B/N total, 0 = color */
+  --img-bw: 1;
+}
+
+/* ---------- 2) Fondo dividido horizontal tipo revista ---------- */
+html, body{
+  min-height: 100%;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--bg-top) 0,
+      var(--bg-top) var(--split-at),
+      var(--bg-bottom) var(--split-at),
+      var(--bg-bottom) 100%
+    ) !important;
+  color: var(--ink) !important;
+}
+
+/* Asegura que el body no “pise” el gradiente */
+body{ background: transparent !important; }
+
+/* ---------- 3) Acento coherente ---------- */
+nav a:hover,
+.a-nav a:hover{
+  color: var(--accent) !important;
+}
+
+nav a[aria-current="page"],
+.a-nav a[aria-current="page"]{
+  color: var(--accent) !important;
+}
+
+a[href*="keystatic"],
+a[href*="login"],
+.a-login,
+.a-nav__login,
+button{
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+
+a[href*="keystatic"]:hover,
+a[href*="login"]:hover,
+.a-login:hover,
+.a-nav__login:hover{
+  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
+}
+
+hr, .rule, .a-rule{
+  border-color: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+}
+
+/* ---------- 4) Blanco y negro para TODAS las imágenes ---------- */
+img{
+  filter: grayscale(var(--img-bw));
+}
+
+/* Excepción manual: si alguna imagen debe ir a color */
+img.no-bw{
+  filter: none !important;
+}
+
+/* ---------- 5) HERO: mismo alto, y sin “ficha gigante” ---------- */
+.a-hero{
+  align-items: stretch !important;
+}
+
+.a-hero__img{
+  height: var(--hero-h) !important;
+  overflow: hidden !important;
+  border-radius: 18px;
+  max-width: var(--hero-max) !important;
+  margin: 0 auto;
+}
+
+.a-hero__img img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block;
+  margin: 0;
+  max-width: none !important;
+}
+
+.a-hero__card{
+  height: var(--hero-h) !important;
+  min-height: var(--hero-h) !important;
+  overflow: hidden;
+  padding: 18px 18px !important;
+
+  background: var(--card) !important;
+  color: var(--card-ink) !important;
+
+  box-shadow:
+    0 18px 60px rgb(0 0 0 / 0.10),
+    0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent) !important;
+}
+
+.a-hero__card p,
+.a-hero__card .a-hero__p{
+  color: var(--card-ink) !important;
+  opacity: .95;
+}
+
+/* evita que el texto empuje el alto */
+.a-hero__h1{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.a-hero__p{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+}
+
+.a-dotbtn span{ background: rgb(255 255 255 / 0.55) !important; }
+.a-dotbtn.is-on span{ background: rgb(255 255 255 / 0.92) !important; }
+
+/* ---------- 6) Fallback si color-mix no existe ---------- */
+@supports not (color: color-mix(in srgb, red, white)) {
+  button{ border-color: rgb(37 99 235 / 0.35) !important; }
+  hr, .rule, .a-rule{ border-color: rgb(37 99 235 / 0.14) !important; }
+}
+
+/* ---------- 7) (Opcional) “50%” real: descomenta ---------- */
+/*
+:root{
+  --hero-max: 300px;
+  --hero-h: clamp(180px, 18vw, 260px);
+}
+*/

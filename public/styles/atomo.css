@@ -1,15 +1,35 @@
 :root{
   color-scheme: light;
-  --bg:#ffffff;
-  --fg:#111111;
-  --muted:rgba(0,0,0,.72);
-  --hair:rgba(0,0,0,.12);
-  --hover:rgba(0,0,0,.035);
+
+  /* Tipos / layout */
   --max:980px;
   --serif: Georgia, "Times New Roman", Times, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Paleta A */
+  --bg-top: #fbfaf7;
+  --bg-bottom: #f1f6ff;
+  --paper: #ffffff;
+  --ink: #141414;
+  --muted: rgba(20,20,20,.62);
+  --accent: #2563eb;
+  --panel: #1f2937;
+  --panel-soft: rgba(37,99,235,.18);
+  --card: rgba(31,41,55,.84);
+  --card-ink: rgba(255,255,255,.92);
+  --rule: rgba(20,20,20,.16);
+
+  /* Derivadas (para compatibilidad con tu CSS existente) */
+  --bg: var(--bg-top);
+  --fg: var(--ink);
+  --hair: rgba(0,0,0,.12);
+  --hover: rgba(0,0,0,.035);
+
+  /* Corte */
+  --split-at: 520px; /* (o 420px si prefieres) */
 }
+
 
 html,body{height:100%}
 body{
@@ -275,7 +295,7 @@ body{
 
 /* ===== Hero slider: líneas clickeables ===== */
 .a-hero__card{ position:relative; }
-.a-hero__hit{ position:absolute; inset:0; z-index:1; }
+.a-hero__hit{ position:absolute; inset:0; z-index:3; display:block; }
 
 .a-hero__lines,
 .a-hero__h1,
@@ -511,4 +531,252 @@ body{
   .a-article__hero img{ height: 300px; }
 }
 
+/* === Global B&W images (reversible) ============================= */
+/* 1 = blanco y negro total | 0 = color normal | 0.6 = gris parcial */
+:root{
+  --img-bw: 1;
+}
+
+/* Aplica a todas las imágenes del sitio */
+img{
+  filter: grayscale(var(--img-bw));
+}
+
+/* Excepción manual: si alguna imagen debe ir a color */
+img.no-bw{
+  filter: none !important;
+}
+
+/* ==============================
+   TUNING HOME + B/N GLOBAL
+   (pegar al final de atomo.css)
+================================ */
+
+/* Ajusta aquí el “tamaño de los cuadros”.
+   Si quieres literalmente ~50% de 420px -> 210px, pon 210px.
+   Yo lo dejo responsive y controlado con clamp. */
+:root{
+  --hero-h: clamp(210px, 26vw, 320px);
+  --img-filter: grayscale(100%);
+}
+
+/* Blanco y negro para TODAS las imágenes */
+img{
+  filter: var(--img-filter);
+}
+
+/* HERO: alto fijo + recorte limpio (evita “ficha gigante” por texto largo) */
+.a-hero{
+  align-items: stretch;
+}
+
+.a-hero__img{
+  height: var(--hero-h);
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.a-hero__img img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: 0;
+  max-width: none;
+}
+
+/* La tarjeta beige queda exactamente del mismo alto */
+.a-hero__card{
+  height: var(--hero-h);
+  min-height: var(--hero-h);
+  overflow: hidden;
+  padding: 18px 18px;
+}
+
+/* Recorte editorial: evita que el texto empuje el alto */
+.a-hero__h1{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* ajusta 2–4 */
+  overflow: hidden;
+}
+
+.a-hero__p{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7; /* ajusta 5–9 */
+  overflow: hidden;
+}
+
+/* =========================================================
+   PALETA + DIVISIÓN HORIZONTAL (revista) — v1
+   Pegar al final de public/styles/atomo.css
+========================================================= */
+
+/* 1) Paleta (MODERNA). Cambia SOLO estos valores si quieres otra sensación. */
+:root{
+  /* Base */
+  --bg-top: #fbfaf7;        /* “blanco cálido” */
+  --bg-bottom: #f1f6ff;     /* fondo tintado (azul humo) */
+  --paper: #ffffff;         /* superficies blancas */
+  --ink: #141414;           /* texto principal */
+  --muted: rgba(20,20,20,.62);
+
+  /* Contraste editorial */
+  --accent: #2563eb;        /* azul vivo (moderno) */
+  --panel: #1f2937;         /* panel oscuro opcional */
+  --panel-soft: rgba(37,99,235,.18); /* azul suave para planos */
+  --card: rgba(31,41,55,.84);        /* tarjeta “no beige”, oscuro elegante */
+  --card-ink: rgba(255,255,255,.92);
+  --rule: rgba(20,20,20,.16);
+
+  /* División horizontal: dónde “corta” el fondo */
+  --split-at: 420px;
+}
+
+@supports not (color: color-mix(in srgb, red, white)) {
+  button{ border-color: rgba(37,99,235,.35) !important; }
+  hr, .rule, .a-rule{ border-color: rgba(37,99,235,.14) !important; }
+}
+
+
+/* 2) Fondo con división horizontal tipo revista */
+html, body{
+  background:
+    linear-gradient(
+      to bottom,
+      var(--bg-top) 0,
+      var(--bg-top) var(--split-at),
+      var(--bg-bottom) var(--split-at),
+      var(--bg-bottom) 100%
+    ) !important;
+  color: var(--ink);
+}
+
+/* 3) Tipografía y color base (sin tocar tu escala) */
+a{ color: inherit; }
+p, li{ color: var(--ink); }
+small, .muted{ color: var(--muted); }
+
+/* 4) Línea editorial (separadores) */
+hr, .rule, .a-rule{
+  border-color: var(--rule) !important;
+}
+
+/* 5) Hero: panel moderno en vez del beige
+      (esto overridea el fondo que hoy te queda “arena”) */
+.a-hero__card{
+  background: var(--card) !important;
+  color: var(--card-ink) !important;
+}
+
+/* Asegura que párrafos dentro de la card queden claros */
+.a-hero__card p,
+.a-hero__card .a-hero__p{
+  color: var(--card-ink) !important;
+  opacity: .95;
+}
+
+/* Dots/lineas sobre panel oscuro */
+.a-dotbtn span{
+  background: rgba(255,255,255,.55) !important;
+}
+.a-dotbtn.is-on span{
+  background: rgba(255,255,255,.95) !important;
+}
+
+/* 6) Un detalle Bauhaus: acento fino para botones/bordes (si existen) */
+button, .btn, .a-btn{
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent) !important;
+}
+
+/* 7) Plano suave opcional detrás del hero (si ya usas split/overlay)
+      No rompe nada si no existe */
+.a-hero[data-variant="split"]::before{
+  background (:
+    linear-gradient(90deg, var(--panel-soft) 0 48%, transparent 48% 100%)
+  );
+}
+
+/* ---------------------------------------------------------
+   ALTERNATIVAS RÁPIDAS (elige 1)
+   Cambia SOLO --bg-bottom y --accent para otro look:
+
+   A) Salvia editorial:
+      --bg-bottom: #eef6f1;
+      --accent: #0f766e;
+
+   B) Lavanda moderna:
+      --bg-bottom: #f4f2ff;
+      --accent: #6d28d9;
+
+   C) Rojo Warhol sobrio:
+      --bg-bottom: #fff1f2;
+      --accent: #e11d48;
+--------------------------------------------------------- */
+/* ===== Acento coherente (Opción A) ===== */
+
+/* 1) Links del menú: hover/subrayado azul */
+nav a:hover,
+.a-nav a:hover{
+  color: var(--accent) !important;
+}
+
+/* Si tienes un estado "activo" (depende de tu HTML), lo cubrimos */
+nav a[aria-current="page"],
+.a-nav a[aria-current="page"]{
+  color: var(--accent) !important;
+}
+
+/* 2) Botón “Ingresa”: borde y hover */
+a[href*="keystatic"],
+a[href*="login"],
+.a-login,
+.a-nav__login,
+button{
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+
+a[href*="keystatic"]:hover,
+a[href*="login"]:hover,
+.a-login:hover,
+.a-nav__login:hover{
+  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
+}
+
+/* 3) Separadores finos “revista” con tinte azul */
+hr, .rule, .a-rule{
+  border-color: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+}
+
+/* 4) Pequeño “glow” editorial en el panel del hero (muy leve) */
+.a-hero__card{
+  box-shadow:
+    0 18px 60px rgba(0,0,0,.10),
+    0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent) !important;
+}
+
+/* Fondo dividido horizontal tipo revista */
+html, body{
+  background:
+    linear-gradient(
+      to bottom,
+      var(--bg-top) 0,
+      var(--bg-top) var(--split-at),
+      var(--bg-bottom) var(--split-at),
+      var(--bg-bottom) 100%
+    ) !important;
+  color: var(--fg);
+}
+
+.a-hero__card{
+  background: var(--card) !important;
+  color: var(--card-ink) !important;
+}
+.a-hero__card p,
+.a-hero__card .a-hero__p{
+  color: var(--card-ink) !important;
+}
+
+<link rel="stylesheet" href="/styles/atomo.css">
+<link rel="stylesheet" href="/styles/lumen-theme.css">
 
