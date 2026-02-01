@@ -60,7 +60,7 @@ export default config({
       columns: ["date", "section", "draft", "featured"],
 
       // botón de vista previa dentro del editor
-      previewUrl: "/articulos/{slug}",
+      previewUrl: "/articulos/{slug}/",
 
       schema: {
         title: fields.slug({
