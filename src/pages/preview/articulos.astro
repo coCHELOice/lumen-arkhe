@@ -1,0 +1,40 @@
+﻿---
+export const prerender = false;
+
+import { getEntryBySlug } from "astro:content";
+
+const url = new URL(Astro.request.url);
+const slug = url.searchParams.get("slug");
+
+if (!slug) {
+  return new Response("Falta ?slug=...", { status: 400 });
+}
+
+const entry = await getEntryBySlug("articulos", slug);
+if (!entry) {
+  return new Response("No encontrado", { status: 404 });
+}
+
+const { Content } = await entry.render();
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{entry.data.title} — Preview</title>
+  </head>
+  <body>
+    <main style="max-width: 980px; margin: 24px auto; padding: 12px;">
+      <p style="opacity:.7; font-size: 13px; margin: 0 0 16px;">
+        PREVIEW (incluye borradores). Slug: <strong>{slug}</strong>
+      </p>
+
+      <article>
+        <h1 style="margin: 0 0 8px;">{entry.data.title}</h1>
+        {entry.data.deck ? <p style="margin: 0 0 16px; opacity: .85;">{entry.data.deck}</p> : null}
+        <Content />
+      </article>
+    </main>
+  </body>
+</html>
