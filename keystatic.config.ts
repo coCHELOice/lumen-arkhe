@@ -6,42 +6,79 @@ export default config({
   storage: isProd
     ? {
         kind: 'github',
-        // repo en formato "owner/name"
         repo: 'coCHELOice/lumen-arkhe',
-        // opcional, si quieres limitar ramas que Keystatic maneja:
-        // branchPrefix: 'keystatic/',
       }
     : { kind: 'local' },
+
+  ui: {
+    brand: { name: 'Lumen Arkhé' },
+    navigation: {
+      Contenido: ['articulos'],
+    },
+  },
 
   collections: {
     articulos: collection({
       label: 'Artículos',
-      slugField: 'slug',
-      format: { data: 'yaml', contentField: 'body' },
-      entryLayout: 'content',
-      columns: ['date','draft'],
-      previewUrl: '/articulos/{slug}',
-      path: 'src/content/articulos/*',
-      schema: {
-        slug: fields.text({ label: 'Slug', validation: { isRequired: true } }),
-        title: fields.text({ label: 'Título', validation: { isRequired: true } }),
-        deck: fields.text({ label: 'Bajada', multiline: true }),
-        date: fields.date({ label: 'Fecha' }),
-        draft: fields.checkbox({ label: 'Borrador' }),
 
-        // RECOMENDADO: guarda imágenes en /public (no en /src/assets)
+      // Tus archivos reales viven aquí:
+      path: 'src/content/articulos/*',
+
+      // IMPORTANTE: el slug real está en el frontmatter como "slug:"
+      slugField: 'slug',
+
+      // IMPORTANTE: Keystatic leerá frontmatter YAML + cuerpo como contenido
+      format: { data: 'yaml', contentField: 'body' },
+
+      entryLayout: 'content',
+      columns: ['date', 'draft', 'featured'],
+
+      // Preview estable (string, no función)
+      previewUrl: '/articulos/{slug}',
+
+      schema: {
+        slug: fields.text({
+          label: 'Slug (URL)',
+          description:
+            'Debe coincidir con el nombre del archivo. Ej: burocracia-minima',
+          validation: { isRequired: true },
+        }),
+
+        title: fields.text({
+          label: 'Título',
+          validation: { isRequired: true },
+        }),
+
+        deck: fields.text({
+          label: 'Bajada',
+          multiline: true,
+        }),
+
+        date: fields.date({
+          label: 'Fecha',
+          validation: { isRequired: true },
+        }),
+
+        featured: fields.checkbox({
+          label: 'Destacado (sale en el Hero)',
+        }),
+
+        draft: fields.checkbox({
+          label: 'Borrador (no publicar)',
+        }),
+
         image: fields.image({
           label: 'Imagen',
-          directory: 'public/images/articulos',
-          publicPath: '/images/articulos',
+          directory: 'public/assets/articulos',
+          publicPath: '/assets/articulos/',
         }),
 
         body: fields.markdoc({
           label: 'Contenido',
           options: {
             image: {
-              directory: 'public/images/articulos',
-              publicPath: '/images/articulos',
+              directory: 'public/assets/articulos',
+              publicPath: '/assets/articulos/',
             },
           },
         }),
@@ -49,3 +86,4 @@ export default config({
     }),
   },
 });
+
