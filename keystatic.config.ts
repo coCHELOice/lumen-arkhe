@@ -20,37 +20,43 @@ export default config({
   collections: {
     articulos: collection({
       label: 'Artículos',
-
-      // Tus archivos reales viven aquí:
       path: 'src/content/articulos/*',
 
-      // IMPORTANTE: el slug real está en el frontmatter como "slug:"
+      // Guardar frontmatter YAML + cuerpo Markdoc en el mismo archivo
+      format: { data: 'yaml', contentField: 'content' },
+
+      // El nombre del archivo (y el slug interno de Keystatic) será el valor de este campo
       slugField: 'slug',
 
-      // IMPORTANTE: Keystatic leerá frontmatter YAML + cuerpo como contenido
-      format: { data: 'yaml', contentField: 'body' },
-
       entryLayout: 'content',
-      columns: ['date', 'draft', 'featured'],
-
-      // Preview estable (string, no función)
+      columns: ['date', 'section', 'draft', 'featured'],
       previewUrl: '/articulos/{slug}',
 
       schema: {
-        slug: fields.text({
-          label: 'Slug (URL)',
-          description:
-            'Debe coincidir con el nombre del archivo. Ej: burocracia-minima',
-          validation: { isRequired: true },
-        }),
-
         title: fields.text({
           label: 'Título',
           validation: { isRequired: true },
         }),
 
+        slug: fields.text({
+          label: 'Slug (URL)',
+          description: 'Minúsculas, números y guiones. Ej: la-ventanilla-y-el-algoritmo',
+          validation: {
+            isRequired: true,
+            pattern: {
+              regex: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+              message: 'Usa solo minúsculas, números y guiones (sin tildes ni símbolos).',
+            },
+          },
+        }),
+
         deck: fields.text({
-          label: 'Bajada',
+          label: 'Bajada (deck)',
+          multiline: true,
+        }),
+
+        description: fields.text({
+          label: 'Descripción',
           multiline: true,
         }),
 
@@ -59,13 +65,25 @@ export default config({
           validation: { isRequired: true },
         }),
 
-        featured: fields.checkbox({
-          label: 'Destacado (sale en el Hero)',
+        section: fields.select({
+          label: 'Sección',
+          options: [
+            { label: 'Ensayos', value: 'Ensayos' },
+            { label: 'Reseñas', value: 'Reseñas' },
+            { label: 'Crónica', value: 'Crónica' },
+          ],
+          defaultValue: 'Ensayos',
         }),
 
-        draft: fields.checkbox({
-          label: 'Borrador (no publicar)',
+        tag: fields.text({ label: 'Tag (opcional)' }),
+        author: fields.text({ label: 'Autor (opcional)' }),
+
+        temas: fields.array(fields.text({ label: 'Tema' }), {
+          label: 'Temas (opcional)',
         }),
+
+        featured: fields.checkbox({ label: 'Destacado (sale en el Hero)' }),
+        draft: fields.checkbox({ label: 'Borrador (no publicar)' }),
 
         image: fields.image({
           label: 'Imagen',
@@ -73,7 +91,13 @@ export default config({
           publicPath: '/assets/articulos/',
         }),
 
-        body: fields.markdoc({
+        hero: fields.image({
+          label: 'Hero (opcional)',
+          directory: 'public/assets/hero',
+          publicPath: '/assets/hero/',
+        }),
+
+        content: fields.markdoc({
           label: 'Contenido',
           options: {
             image: {
@@ -86,4 +110,3 @@ export default config({
     }),
   },
 });
-
