@@ -1,5 +1,7 @@
 ---
 const { title = "Lumen Arkhé", description = "" } = Astro.props;
+const path = Astro.url?.pathname ?? "/";
+const isActive = (href) => (href === "/" ? path === "/" : path.startsWith(href));
 ---
 
 <!doctype html>
@@ -11,8 +13,66 @@ const { title = "Lumen Arkhé", description = "" } = Astro.props;
     {description ? <meta name="description" content={description} /> : null}
     <link rel="stylesheet" href="/styles/atomo.css" />
   </head>
+
   <body>
-    <slot />
+    <header class="sitehead">
+      <a class="sitehead__brand" href="/">Lumen Arkhé</a>
+
+      <nav class="sitehead__nav" aria-label="Menú">
+        <a class:list={["sitehead__link", isActive("/articulos") && "is-active"]} href="/articulos">
+          Artículos
+        </a>
+        <a class:list={["sitehead__link", isActive("/newsletter") && "is-active"]} href="/newsletter">
+          Newsletter
+        </a>
+      </nav>
+    </header>
+
+    <main class="sitewrap">
+      <slot />
+    </main>
+
+    <style>
+      .sitehead{
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 18px 16px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+      }
+      .sitehead__brand{
+        text-decoration:none;
+        font-weight: 800;
+        letter-spacing: .2px;
+      }
+      .sitehead__nav{
+        display:flex;
+        gap:12px;
+        align-items:center;
+      }
+      .sitehead__link{
+        text-decoration:none;
+        opacity:.88;
+        border: 1px solid rgba(0,0,0,.12);
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-weight: 650;
+      }
+      .sitehead__link:hover{ opacity:1; }
+      .sitehead__link.is-active{
+        opacity:1;
+        border-color: rgba(0,0,0,.28);
+      }
+
+      .sitewrap{
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 16px 44px;
+      }
+    </style>
   </body>
 </html>
+
 
