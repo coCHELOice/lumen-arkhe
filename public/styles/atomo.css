@@ -780,3 +780,27 @@ html, body{
 <link rel="stylesheet" href="/styles/atomo.css">
 <link rel="stylesheet" href="/styles/lumen-theme.css">
 
+/* ===========================
+   Sticky header / menú fijo
+   =========================== */
+
+header[role="banner"],
+header.site-header,
+header.a-sitehead,
+header.a-header,
+body > header {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: rgba(248, 246, 242, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Evita “saltos” visuales en algunos browsers */
+header[role="banner"] * {
+  scroll-margin-top: 96px;
+}
+
+
