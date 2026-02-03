@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Base from "../../layouts/Base.astro";
 
 type AnyPost = { slug: string; data: any; render?: () => Promise<{ Content: any }> };
@@ -16,6 +18,15 @@ function fmtDate(v: any): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+// Normaliza: quita tildes, trim, lowercase (para filtros robustos)
+function norm(v: any): string {
+  return String(v ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 let posts: AnyPost[] = [];
@@ -38,17 +49,25 @@ posts.sort((a, b) => {
   return db.getTime() - da.getTime();
 });
 
-const sec = Astro.url.searchParams.get("sec");
-const tema = Astro.url.searchParams.get("tema");
+const secRaw = Astro.url.searchParams.get("sec");
+const temaRaw = Astro.url.searchParams.get("tema");
 const q = (Astro.url.searchParams.get("q") || "").trim().toLowerCase();
 
+const sec = norm(secRaw);
+const tema = norm(temaRaw);
+
 const filtered = posts.filter((p) => {
-  const section = String(p.data.section ?? p.data.seccion ?? "");
-  const tagsStr = String(p.data.tag ?? p.data.tema ?? "");
-  const tagsArr = Array.isArray(p.data.tags) ? p.data.tags : [];
+  const sectionRaw = p.data.section ?? p.data.seccion ?? "";
+  const tagsStrRaw = p.data.tag ?? p.data.tema ?? "";
+  const tagsArrRaw = Array.isArray(p.data.tags) ? p.data.tags : [];
+
+  const section = norm(sectionRaw);
+  const tagsStr = norm(tagsStrRaw);
+  const tagsArr = tagsArrRaw.map((t: any) => norm(t));
+
   const title = String(p.data.title ?? "");
   const deck = String(p.data.deck ?? p.data.description ?? p.data.excerpt ?? "");
-  const hay = `${title} ${deck} ${section} ${tagsStr} ${tagsArr.join(" ")}`.toLowerCase();
+  const hay = `${title} ${deck} ${sectionRaw} ${tagsStrRaw} ${tagsArrRaw.join(" ")}`.toLowerCase();
 
   if (sec && section !== sec) return false;
   if (tema && !(tagsStr.includes(tema) || tagsArr.includes(tema))) return false;
@@ -57,11 +76,14 @@ const filtered = posts.filter((p) => {
 });
 
 const siteTitle = "Lumen Arkhé";
+
+// Usamos valores “limpios” en la URL: ensayos / resenas / cronica
 const sections = [
-  { label: "Ensayos", href: "/articulos?sec=Ensayos" },
-  { label: "Reseñas", href: "/articulos?sec=Reseñas" },
-  { label: "Crónica", href: "/articulos?sec=Crónica" },
+  { label: "Ensayos", key: "ensayos", href: "/articulos?sec=ensayos" },
+  { label: "Reseñas", key: "resenas", href: "/articulos?sec=resenas" },
+  { label: "Crónica", key: "cronica", href: "/articulos?sec=cronica" },
 ];
+
 const extras = [
   { label: "Archivo PDF", href: "/pdf" },
   { label: "Newsletter", href: "/newsletter" },
@@ -70,24 +92,35 @@ const extras = [
 
 <Base title={`Artículos — ${siteTitle}`} description="Archivo de textos.">
   <div class="wrap">
-    <div class="topbar">
-      <div class="lang">
-        <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
+    <header class="siteHeader" role="banner">
+      <div class="topbar">
+        <div class="lang">
+          <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
+        </div>
+        <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
       </div>
-      <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
-    </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:10px">
-      <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
-      <nav class="nav" aria-label="Secciones">
-        {sections.map((i) => <a href={i.href}>{i.label}</a>)}
-        <span class="sep" aria-hidden="true"> · </span>
-        {extras.map((i) => <a href={i.href}>{i.label}</a>)}
-      </nav>
-    </div>
+      <div class="mast">
+        <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
+
+        <nav class="nav" aria-label="Secciones">
+          {sections.map((i) => (
+            <a class={sec === i.key ? "on" : ""} href={i.href}>
+              {i.label}
+            </a>
+          ))}
+          <span class="sep" aria-hidden="true"> · </span>
+          {extras.map((i) => <a href={i.href}>{i.label}</a>)}
+        </nav>
+      </div>
+    </header>
 
     <div class="search">
       <form method="get" action="/articulos">
+        {/* preserva filtros al buscar */}
+        {sec ? <input type="hidden" name="sec" value={sec} /> : null}
+        {tema ? <input type="hidden" name="tema" value={tema} /> : null}
+
         <input type="text" name="q" value={q} placeholder="Búsqueda" />
         <button type="submit">Buscar</button>
       </form>
@@ -97,6 +130,7 @@ const extras = [
     <hr class="rule" />
 
     <h1>Artículos</h1>
+
     {(sec || tema || q) ? (
       <p class="lede">
         {sec ? <>Sección: <b>{sec}</b>. </> : null}
@@ -135,6 +169,33 @@ const extras = [
       <span>© {new Date().getFullYear()} {siteTitle}.</span>
     </footer>
   </div>
+
+  <style>
+    {`
+      .siteHeader{
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        background: #f7f4ee;
+        padding-top: 10px;
+      }
+      .siteHeader::after{
+        content:"";
+        display:block;
+        border-bottom: 1px solid rgba(0,0,0,.08);
+        margin-top: 10px;
+      }
+      .mast{
+        display:flex;
+        justify-content:space-between;
+        align-items:baseline;
+        gap:16px;
+        margin-top:10px;
+      }
+      .nav a.on{
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+    `}
+  </style>
 </Base>
-
-
