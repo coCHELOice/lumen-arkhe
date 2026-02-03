@@ -20,7 +20,6 @@ function fmtDate(v: any): string {
   return `${y}-${m}-${day}`;
 }
 
-// Normaliza: quita tildes, trim, lowercase (para filtros robustos)
 function norm(v: any): string {
   return String(v ?? "")
     .normalize("NFD")
@@ -57,12 +56,19 @@ const sec = norm(secRaw);
 const tema = norm(temaRaw);
 
 const filtered = posts.filter((p) => {
-  const sectionRaw = p.data.section ?? p.data.seccion ?? "";
-  const tagsStrRaw = p.data.tag ?? p.data.tema ?? "";
-  const tagsArrRaw = Array.isArray(p.data.tags) ? p.data.tags : [];
+  if (p.data?.draft) return false;
 
+  const sectionRaw = String(p.data.section ?? p.data.seccion ?? "");
   const section = norm(sectionRaw);
+
+  const tagsStrRaw = String(p.data.tag ?? p.data.tema ?? "");
   const tagsStr = norm(tagsStrRaw);
+
+  const tagsArrRaw = Array.isArray(p.data.temas)
+    ? p.data.temas
+    : Array.isArray(p.data.tags)
+    ? p.data.tags
+    : [];
   const tagsArr = tagsArrRaw.map((t: any) => norm(t));
 
   const title = String(p.data.title ?? "");
@@ -76,14 +82,11 @@ const filtered = posts.filter((p) => {
 });
 
 const siteTitle = "Lumen Arkhé";
-
-// Usamos valores “limpios” en la URL: ensayos / resenas / cronica
 const sections = [
-  { label: "Ensayos", key: "ensayos", href: "/articulos?sec=ensayos" },
-  { label: "Reseñas", key: "resenas", href: "/articulos?sec=resenas" },
-  { label: "Crónica", key: "cronica", href: "/articulos?sec=cronica" },
+  { label: "Ensayos", href: "/articulos?sec=Ensayos" },
+  { label: "Reseñas", href: "/articulos?sec=Reseñas" },
+  { label: "Crónica", href: "/articulos?sec=Crónica" },
 ];
-
 const extras = [
   { label: "Archivo PDF", href: "/pdf" },
   { label: "Newsletter", href: "/newsletter" },
@@ -92,110 +95,34 @@ const extras = [
 
 <Base title={`Artículos — ${siteTitle}`} description="Archivo de textos.">
   <div class="wrap">
-    <header class="siteHeader" role="banner">
-      <div class="topbar">
-        <div class="lang">
-          <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
-        </div>
-        <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
+    <div class="topbar">
+      <div class="lang">
+        <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
       </div>
+      <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
+    </div>
 
-      <div class="mast">
-        <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
-
-        <nav class="nav" aria-label="Secciones">
-          {sections.map((i) => (
-            <a class={sec === i.key ? "on" : ""} href={i.href}>
-              {i.label}
-            </a>
-          ))}
-          <span class="sep" aria-hidden="true"> · </span>
-          {extras.map((i) => <a href={i.href}>{i.label}</a>)}
-        </nav>
-      </div>
-    </header>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:10px">
+      <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
+      <nav class="nav" aria-label="Secciones">
+        {sections.map((i) => <a href={i.href}>{i.label}</a>)}
+        <span class="sep" aria-hidden="true"> · </span>
+        {extras.map((i) => <a href={i.href}>{i.label}</a>)}
+      </nav>
+    </div>
 
     <div class="search">
       <form method="get" action="/articulos">
-        {/* preserva filtros al buscar */}
-        {sec ? <input type="hidden" name="sec" value={sec} /> : null}
-        {tema ? <input type="hidden" name="tema" value={tema} /> : null}
-
+        {secRaw ? <input type="hidden" name="sec" value={secRaw} /> : null}
+        {temaRaw ? <input type="hidden" name="tema" value={temaRaw} /> : null}
         <input type="text" name="q" value={q} placeholder="Búsqueda" />
         <button type="submit">Buscar</button>
       </form>
-      {(sec || tema || q) ? <a class="small" href="/articulos">Limpiar filtros</a> : null}
+      {(secRaw || temaRaw || q) ? <a class="small" href="/articulos">Limpiar filtros</a> : null}
     </div>
 
     <hr class="rule" />
 
     <h1>Artículos</h1>
-
-    {(sec || tema || q) ? (
+    {(secRaw || temaRaw || q) ? (
       <p class="lede">
-        {sec ? <>Sección: <b>{sec}</b>. </> : null}
-        {tema ? <>Tema: <b>{tema}</b>. </> : null}
-        {q ? <>Búsqueda: <b>{q}</b>. </> : null}
-        Resultados: <b>{filtered.length}</b>.
-      </p>
-    ) : (
-      <p class="lede">Archivo editorial.</p>
-    )}
-
-    <ol class="list">
-      {filtered.map((p) => {
-        const title = String(p.data.title ?? p.slug);
-        const deck = String(p.data.deck ?? p.data.description ?? p.data.excerpt ?? "");
-        const author = String(p.data.author ?? p.data.autor ?? "");
-        const section = String(p.data.section ?? p.data.seccion ?? "");
-        const date = fmtDate(p.data.date);
-        return (
-          <li class="li">
-            <a href={`/articulos/${p.slug}`}>
-              <div class="meta">
-                {section ? <span>{section}</span> : null}
-                {date ? <span>{date}</span> : null}
-                {author ? <span>{author}</span> : null}
-              </div>
-              <div class="title">{title}</div>
-              {deck ? <div class="deck">{deck}</div> : null}
-            </a>
-          </li>
-        );
-      })}
-    </ol>
-
-    <footer class="footer">
-      <span>© {new Date().getFullYear()} {siteTitle}.</span>
-    </footer>
-  </div>
-
-  <style>
-    {`
-      .siteHeader{
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        background: #f7f4ee;
-        padding-top: 10px;
-      }
-      .siteHeader::after{
-        content:"";
-        display:block;
-        border-bottom: 1px solid rgba(0,0,0,.08);
-        margin-top: 10px;
-      }
-      .mast{
-        display:flex;
-        justify-content:space-between;
-        align-items:baseline;
-        gap:16px;
-        margin-top:10px;
-      }
-      .nav a.on{
-        text-decoration: underline;
-        text-underline-offset: 4px;
-      }
-    `}
-  </style>
-</Base>
