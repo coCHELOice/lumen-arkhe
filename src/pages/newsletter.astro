@@ -1,20 +1,71 @@
 ---
-import Base from "../layouts/Base.astro";
+const substackEmbed = `https://gregorioaugusto.substack.com/embed`;
 ---
 
-<Base title="Newsletter — Lumen Arkhé">
-  <div class="wrap">
-    <header class="topbar">
-      <a class="brand" href="/"><b>Lumen Arkhé</b><span>Revista / Archivo</span></a>
-      <nav class="nav"><a href="/articulos">Artículos</a></nav>
-    </header>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Newsletter — Lumen Arkhé</title>
+  </head>
+  <body>
+    <main class="newsletter">
+      <header class="newsletter__head">
+        <h1>Suscripción</h1>
+        <p>Recibe ensayos y actualizaciones editoriales (sin spam).</p>
+      </header>
 
-    <p class="kicker">Newsletter</p>
-    <h1>Suscripción</h1>
-    <p class="lede">Página mínima. Aquí irá el formulario (Substack u otro).</p>
+      <section class="newsletter__embed" aria-label="Formulario de suscripción">
+        <iframe
+          src={substackEmbed}
+          width="480"
+          height="320"
+          style="border:1px solid #EEE; background:white;"
+          frameborder="0"
+          scrolling="no"
+          title="Suscripción Substack"
+        ></iframe>
+      </section>
 
-    <div class="footer">
-      <p class="small">Volver a <a href="/">Inicio</a>.</p>
-    </div>
-  </div>
-</Base>
+      <p class="newsletter__alt">
+        Si no carga el formulario:
+        <a
+          href="https://gregorioaugusto.substack.com/subscribe"
+          target="_blank"
+          rel="noreferrer"
+        >
+          suscríbete aquí
+        </a>.
+      </p>
+    </main>
+
+    <style>
+      .newsletter {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 16px;
+      }
+
+      .newsletter__embed {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .newsletter__embed iframe {
+        width: min(520px, 100%);
+        height: 320px;
+        border-radius: 12px;
+      }
+
+      .newsletter__alt {
+        margin-top: 12px;
+        opacity: 0.85;
+        font-size: 0.95rem;
+      }
+    </style>
+  </body>
+</html>
+
+
