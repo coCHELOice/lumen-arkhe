@@ -28,7 +28,7 @@ export default config({
       // y Keystatic lo controla con este campo:
       slugField: 'slug',
 
-      previewUrl: ({ slug }) => `/preview/articulos/${slug}`,
+      previewUrl: '/preview/articulos/{slug}',
 
       schema: {
         title: fields.text({
