@@ -26,16 +26,19 @@ export default config({
 
       // El slug real del sitio es el nombre de archivo (Astro usa entry.slug),
       // y Keystatic lo controla con este campo:
-      slugField: 'title',
+      slugField: 'slug',
 
       previewUrl: ({ slug }) => `/preview/articulos/${slug}`,
 
       schema: {
-        title: fields.slug({
-          name: fields.text({
-            label: 'Título',
-            validation: { isRequired: true },
-          }),
+        title: fields.text({
+          label: 'Título',
+          validation: { isRequired: true },
+        }),
+
+        slug: fields.text({
+          label: 'Slug (URL)',
+          validation: { isRequired: true },
         }),
 
         date: fields.date({
@@ -111,14 +114,17 @@ export default config({
       label: 'Archivo PDF',
       path: 'src/content/issues/*',
       format: { data: 'json' },
-      slugField: 'title',
+      slugField: 'slug',
 
       schema: {
-        title: fields.slug({
-          name: fields.text({
-            label: 'Título',
-            validation: { isRequired: true },
-          }),
+        title: fields.text({
+          label: 'Título',
+          validation: { isRequired: true },
+        }),
+
+        slug: fields.text({
+          label: 'Slug (ID)',
+          validation: { isRequired: true },
         }),
 
         date: fields.date({
