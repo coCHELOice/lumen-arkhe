@@ -25,3 +25,7 @@ pnpm-debug.log*
 # Astro cache (no versionar)
 .astro/
 .vercel
+
+# Local zips / backups
+lumen-arkhe.zip
+
