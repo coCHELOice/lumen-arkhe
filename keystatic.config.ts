@@ -85,11 +85,11 @@ export default config({
           defaultValue: false,
         }),
 
-        // ✅ MODO SEGURO (evita pantalla blanca en Create):
-        // En vez de uploader, usa una ruta/URL.
-        // Ej: /images/hero/mi-imagen.jpg
-        hero: fields.text({
-          label: 'Imagen (Hero/Home) — ruta o URL (ej: /images/hero/mi-imagen.jpg)',
+        // ✅ Imagen Hero: sube directamente
+        hero: fields.image({
+          label: 'Imagen (Hero/Home)',
+          directory: 'public/images/articulos',
+          publicPath: '/images/articulos/',
         }),
 
         // Reseñas (opcionales)
