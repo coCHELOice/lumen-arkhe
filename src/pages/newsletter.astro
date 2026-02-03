@@ -1,47 +1,186 @@
 ---
 const substackEmbed = "https://gregorioaugusto.substack.com/embed";
+const substackSubscribe = "https://gregorioaugusto.substack.com/subscribe";
 ---
 
 <main class="newsletter">
+  <!-- Top nav simple -->
+  <nav class="newsletter__top" aria-label="Navegación">
+    <a class="newsletter__back" href="/">← Volver al Home</a>
+
+    <div class="newsletter__links">
+      <a href="/articulos">Artículos</a>
+      <a href="/newsletter" aria-current="page">Newsletter</a>
+    </div>
+  </nav>
+
+  <!-- Head -->
   <header class="newsletter__head">
     <h1>Suscripción</h1>
     <p>Recibe ensayos y actualizaciones editoriales (sin spam).</p>
   </header>
 
-  <section class="newsletter__embed" aria-label="Formulario de suscripción">
-    <iframe
-      src={substackEmbed}
-      width="480"
-      height="320"
-      style="border:1px solid #EEE; background:white;"
-      frameborder="0"
-      scrolling="no"
-      title="Suscripción Substack"
-    ></iframe>
-  </section>
+  <!-- Content -->
+  <section class="newsletter__grid">
+    <!-- Form card -->
+    <div class="newsletter__card">
+      <h2 class="newsletter__h2">Formulario</h2>
+      <p class="newsletter__muted">Toma 10 segundos.</p>
 
-  <p class="newsletter__alt">
-    Si no carga el formulario:
-    <a
-      href="https://gregorioaugusto.substack.com/subscribe"
-      target="_blank"
-      rel="noreferrer"
-    >
-      suscríbete aquí
-    </a>.
-  </p>
+      <div class="newsletter__embed" aria-label="Formulario de suscripción">
+        <iframe
+          src={substackEmbed}
+          width="480"
+          height="320"
+          style="border:1px solid #EEE; background:white;"
+          frameborder="0"
+          scrolling="no"
+          title="Suscripción Substack"
+        ></iframe>
+      </div>
+
+      <p class="newsletter__alt">
+        Si no carga el formulario:
+        <a href={substackSubscribe} target="_blank" rel="noreferrer">suscríbete aquí</a>.
+      </p>
+    </div>
+
+    <!-- Side card -->
+    <aside class="newsletter__side">
+      <div class="newsletter__card">
+        <h2 class="newsletter__h2">Qué recibirás</h2>
+        <ul class="newsletter__list">
+          <li>Ensayos: política, burocracia, técnica y vida pública.</li>
+          <li>Archivo curado: textos recomendados y relecturas.</li>
+          <li>Notas breves: avances editoriales y publicaciones.</li>
+        </ul>
+        <p class="newsletter__muted">Frecuencia: 1–2 envíos por semana (aprox.).</p>
+      </div>
+
+      <div class="newsletter__card newsletter__fineprint">
+        <p class="newsletter__muted">
+          Puedes darte de baja en cualquier momento. Tu correo no se comparte.
+        </p>
+        <a class="newsletter__back" href="/">← Volver al Home</a>
+      </div>
+    </aside>
+  </section>
 </main>
 
 <style>
-  .newsletter { max-width: 980px; margin: 0 auto; padding: 28px 16px; }
-  .newsletter__embed { margin-top: 18px; display: flex; justify-content: center; }
+  .newsletter {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 28px 16px 44px;
+  }
+
+  .newsletter__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .newsletter__links {
+    display: flex;
+    gap: 12px;
+    opacity: 0.9;
+  }
+
+  .newsletter__links a {
+    text-decoration: none;
+  }
+
+  .newsletter__back {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 650;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  .newsletter__head h1 {
+    margin: 0 0 6px;
+    font-size: 2rem;
+  }
+
+  .newsletter__head p {
+    margin: 0 0 18px;
+    opacity: 0.85;
+  }
+
+  .newsletter__grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .newsletter__grid {
+      grid-template-columns: 1fr;
+    }
+    .newsletter__top {
+      flex-wrap: wrap;
+    }
+  }
+
+  .newsletter__card {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.06);
+  }
+
+  .newsletter__h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+
+  .newsletter__muted {
+    margin: 0 0 10px;
+    opacity: 0.75;
+    font-size: 0.95rem;
+  }
+
+  .newsletter__embed {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+
   .newsletter__embed iframe {
     width: min(520px, 100%);
     height: 320px;
     border-radius: 12px;
   }
-  .newsletter__alt { margin-top: 12px; opacity: .85; }
+
+  .newsletter__alt {
+    margin-top: 12px;
+    opacity: 0.85;
+    font-size: 0.95rem;
+  }
+
+  .newsletter__list {
+    margin: 10px 0 8px;
+    padding-left: 18px;
+  }
+
+  .newsletter__list li {
+    margin: 6px 0;
+  }
+
+  .newsletter__fineprint {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
 </style>
+
 
 
 
