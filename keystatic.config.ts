@@ -82,10 +82,11 @@ export default config({
           defaultValue: false,
         }),
 
-        hero: fields.image({
-          label: 'Imagen (Hero/Home)',
-          directory: 'public/images/hero',
-          publicPath: '/images/hero',
+        // ✅ MODO SEGURO (evita pantalla blanca en Create):
+        // En vez de uploader, usa una ruta/URL.
+        // Ej: /images/hero/mi-imagen.jpg
+        hero: fields.text({
+          label: 'Imagen (Hero/Home) — ruta o URL (ej: /images/hero/mi-imagen.jpg)',
         }),
 
         // Reseñas (opcionales)
@@ -127,16 +128,16 @@ export default config({
 
         period: fields.text({ label: 'Periodo (opcional)' }),
 
-        cover: fields.image({
-          label: 'Portada',
-          directory: 'public/images/issues',
-          publicPath: '/images/issues',
+        // ✅ MODO SEGURO: portada como ruta/URL
+        // Ej: /images/issues/portada.jpg
+        cover: fields.text({
+          label: 'Portada — ruta o URL (ej: /images/issues/portada.jpg)',
         }),
 
-        pdf: fields.file({
-          label: 'PDF (opcional)',
-          directory: 'public/issues',
-          publicPath: '/issues',
+        // ✅ MODO SEGURO: PDF como ruta/URL
+        // Ej: /issues/atomo-11.pdf
+        pdf: fields.text({
+          label: 'PDF (opcional) — ruta o URL (ej: /issues/atomo-11.pdf)',
         }),
 
         buyUrl: fields.url({ label: 'Link compra (opcional)' }),
