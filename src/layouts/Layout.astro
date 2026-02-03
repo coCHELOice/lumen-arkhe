@@ -1,27 +1,12 @@
 ---
-import "../styles/site.css";
-
-const {
-  title = "Lumen Arkhé",
-  description = "Revista de ensayos: política, burocracia, técnica y vida pública.",
-} = Astro.props;
+import BaseLayout from "./BaseLayout.astro";
+const props = Astro.props;
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-  </head>
+<BaseLayout {...props}>
+  <slot />
+</BaseLayout>
 
-  <body>
-    <slot />
-  </body>
-</html>
 
 <style>
   html, body { margin: 0; }

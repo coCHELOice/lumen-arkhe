@@ -1,28 +1,48 @@
-<header class="sitehead">
-  <a class="sitehead__brand" href="/">Lumen Arkhé</a>
+---
+const siteTitle = "Lumen Arkhé";
 
-  <nav class="sitehead__nav" aria-label="Menú">
-    <a href="/articulos">Artículos</a>
-    <a href="/newsletter">Newsletter</a>
+const secciones = [
+  { name: "Ensayos", href: "/articulos?sec=Ensayos" },
+  { name: "Reseñas", href: "/articulos?sec=Reseñas" },
+  { name: "Crónica", href: "/articulos?sec=Crónica" },
+  { name: "Archivo PDF", href: "/pdf" },
+];
+---
+
+<header class="a-head">
+  <div class="a-head__top">
+    <div class="a-lang">
+      <a class="a-lang__on" href="#" aria-current="true">ES</a>
+      <span class="a-dot">•</span>
+      <a class="a-lang__off" href="#">EN</a>
+    </div>
+
+    <div class="a-title">
+      <a class="a-title__brand" href="/">{siteTitle.toUpperCase()}</a>
+    </div>
+
+    <a class="a-ingresa" href="#">INGRESA</a>
+  </div>
+
+  <nav class="a-menu" aria-label="Secciones">
+    {secciones.map((s) => (
+      <a class="a-menu__a" href={s.href}>{s.name.toUpperCase()}</a>
+    ))}
+    <span class="a-bar" aria-hidden="true">|</span>
+    <a class="a-menu__a" href="/newsletter">NEWSLETTER</a>
+    <a class="a-menu__a" href="/articulos">BÚSQUEDA</a>
   </nav>
 
   <style>
-    .sitehead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding: 18px 16px;
-      max-width: 1040px;
-      margin: 0 auto;
+    /* Header fijo / legible sobre scroll */
+    .a-head{
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(247, 244, 238, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,.08);
     }
-    .sitehead__brand{
-      text-decoration:none;
-      font-weight:700;
-      letter-spacing:.2px;
-    }
-    .sitehead__nav{ display:flex; gap:12px; }
-    .sitehead__nav a{ text-decoration:none; opacity:.9; }
-    .sitehead__nav a:hover{ opacity:1; }
   </style>
 </header>
