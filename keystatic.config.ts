@@ -1,114 +1,148 @@
-import { config, collection, fields } from "@keystatic/core";
-import { markdoc } from "@keystatic/core/content-components";
+import { config, fields, collection } from '@keystatic/core';
 
-const SECTION_OPTIONS = [
-  { label: "Ensayos", value: "Ensayos" },
-  { label: "Reseñas", value: "Reseñas" },
-  { label: "Crónica", value: "Crónica" },
-  { label: "Editorial", value: "Editorial" },
-] as const;
-
-const TAG_OPTIONS = [
-  { label: "filosofia", value: "filosofia" },
-  { label: "historia", value: "historia" },
-  { label: "politica", value: "politica" },
-  { label: "burocracia", value: "burocracia" },
-  { label: "tecnica", value: "tecnica" },
-  { label: "chile", value: "chile" },
-  { label: "mundo", value: "mundo" },
-] as const;
+const isProd = process.env.NODE_ENV === 'production';
 
 export default config({
-  storage: import.meta.env.DEV
-    ? { kind: "local" }
-    : { kind: "github", repo: "coCHELOice/lumen-arkhe", branch: "main" },
+  // Dev: edita archivos locales
+  // Prod: edita en GitHub (requiere variables KEYSTATIC_* en el host)
+  storage: isProd
+    ? { kind: 'github', repo: 'coCHELOice/lumen-arkhe' }
+    : { kind: 'local' },
 
   ui: {
-    brand: { name: "Lumen Arkhé" },
+    brand: { name: 'Lumen Arkhé' },
+    // Menú simple: lo mismo que maneja el sitio
     navigation: {
-      Contenido: ["articulos"],
+      Contenido: ['articulos', 'issues'],
     },
   },
 
   collections: {
     articulos: collection({
-      label: "Artículos",
-      path: "src/content/articulos/*",
-      slugField: "slug",
-      columns: ["title", "date", "section", "draft", "featured"],
+      label: 'Artículos',
+      path: 'src/content/articulos/*',
+      // Importante: nuestros archivos son .mdoc con frontmatter + cuerpo
+      format: { contentField: 'content' },
+
+      // El slug real del sitio es el nombre de archivo (Astro usa entry.slug),
+      // y Keystatic lo controla con este campo:
+      slugField: 'title',
+
       previewUrl: ({ slug }) => `/preview/articulos/${slug}`,
 
       schema: {
-        title: fields.text({
-          label: "Título",
-          validation: { isRequired: true },
-        }),
-
-        slug: fields.text({
-          label: "Slug",
-          description: "Debe coincidir con la URL: /articulos/<slug>",
-          validation: { isRequired: true },
+        title: fields.slug({
+          name: fields.text({
+            label: 'Título',
+            validation: { isRequired: true },
+          }),
         }),
 
         date: fields.date({
-          label: "Fecha",
+          label: 'Fecha',
           validation: { isRequired: true },
         }),
 
-        section: fields.select({
-          label: "Sección",
-          options: SECTION_OPTIONS,
-          defaultValue: "Ensayos",
-        }),
-
         deck: fields.text({
-          label: "Deck (bajada)",
+          label: 'Bajada (deck)',
           multiline: true,
         }),
 
         description: fields.text({
-          label: "Descripción",
+          label: 'Descripción corta (fallback)',
           multiline: true,
         }),
 
-        tag: fields.select({
-          label: "Tag",
-          options: TAG_OPTIONS,
-          defaultValue: "burocracia",
+        section: fields.select({
+          label: 'Sección',
+          defaultValue: 'Ensayos',
+          options: [
+            { label: 'Ensayos', value: 'Ensayos' },
+            { label: 'Reseñas', value: 'Reseñas' },
+            { label: 'Crónica', value: 'Crónica' },
+          ],
         }),
 
-        temas: fields.array(
-          fields.text({ label: "Tema" }),
-          {
-            label: "Temas",
-            itemLabel: (props) => props.value || "Tema",
-          }
-        ),
+        tag: fields.text({ label: 'Tag / Serie' }),
 
-        author: fields.text({
-          label: "Autor",
-          defaultValue: "Gregorio Augusto Burdiles",
+        temas: fields.array(fields.text({ label: 'Tema' }), {
+          label: 'Temas',
+          itemLabel: (props) => props.value || 'tema',
         }),
 
-        # Reseñas (opcionales)
-        workTitle: fields.text({ label: "Obra / Título (reseña)" }),
-        workAuthor: fields.text({ label: "Obra / Autor (reseña)" }),
-        workYear: fields.text({ label: "Obra / Año (reseña)" }),
-        referenceUrl: fields.text({ label: "Referencia / URL (reseña)" }),
+        author: fields.text({ label: 'Autor' }),
 
         featured: fields.checkbox({
-          label: "Destacado",
+          label: 'Destacar en Home',
           defaultValue: false,
         }),
 
         draft: fields.checkbox({
-          label: "Borrador",
-          defaultValue: true,
+          label: 'Borrador',
+          defaultValue: false,
         }),
 
-        body: fields.markdoc({
-          label: "Cuerpo",
-          components: markdoc(),
+        hero: fields.image({
+          label: 'Imagen (Hero/Home)',
+          directory: 'public/images/hero',
+          publicPath: '/images/hero',
+        }),
+
+        // Reseñas (opcionales)
+        workTitle: fields.text({ label: 'Reseña: obra / título' }),
+        workAuthor: fields.text({ label: 'Reseña: autor' }),
+        workYear: fields.text({ label: 'Reseña: año (texto libre)' }),
+        workUrl: fields.url({ label: 'Reseña: URL (opcional)' }),
+
+        // Crónica (opcionales)
+        chroniclePlace: fields.text({ label: 'Crónica: lugar' }),
+        chronicleDate: fields.text({ label: 'Crónica: fecha' }),
+        chronicleCase: fields.text({ label: 'Crónica: caso' }),
+
+        content: fields.markdoc({
+          label: 'Contenido',
+        }),
+      },
+    }),
+
+    // “Issues” / PDFs (tu Archivo PDF)
+    issues: collection({
+      label: 'Archivo PDF',
+      path: 'src/content/issues/*',
+      format: { data: 'json' },
+      slugField: 'title',
+
+      schema: {
+        title: fields.slug({
+          name: fields.text({
+            label: 'Título',
+            validation: { isRequired: true },
+          }),
+        }),
+
+        date: fields.date({
+          label: 'Fecha',
+          validation: { isRequired: true },
+        }),
+
+        period: fields.text({ label: 'Periodo (opcional)' }),
+
+        cover: fields.image({
+          label: 'Portada',
+          directory: 'public/images/issues',
+          publicPath: '/images/issues',
+        }),
+
+        pdf: fields.file({
+          label: 'PDF (opcional)',
+          directory: 'public/issues',
+          publicPath: '/issues',
+        }),
+
+        buyUrl: fields.url({ label: 'Link compra (opcional)' }),
+
+        articleSlugs: fields.array(fields.text({ label: 'Slug de artículo' }), {
+          label: 'Artículos incluidos (slugs)',
         }),
       },
     }),
