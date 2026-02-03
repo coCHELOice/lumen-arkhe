@@ -2,24 +2,24 @@
 export const prerender = false;
 
 import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
 
-type AnyPost = { slug: string; data: any; render?: () => Promise<{ Content: any }> };
-
-function toDateSafe(v: any): Date | null {
-  if (!v) return null;
+function toDateSafe(v: any): Date {
+  if (!v) return new Date(0);
   if (v instanceof Date) return v;
   const d = new Date(String(v));
-  return isNaN(d.getTime()) ? null : d;
+  return isNaN(d.getTime()) ? new Date(0) : d;
 }
+
 function fmtDate(v: any): string {
   const d = toDateSafe(v);
-  if (!d) return "";
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
+// normaliza: sin tildes, lowercase, trim (para filtros robustos)
 function norm(v: any): string {
   return String(v ?? "")
     .normalize("NFD")
@@ -28,65 +28,53 @@ function norm(v: any): string {
     .toLowerCase();
 }
 
-let posts: AnyPost[] = [];
-try {
-  const { getCollection } = await import("astro:content");
-  const entries = await getCollection("articulos");
-  posts = entries.map((e: any) => ({ slug: e.slug, data: e.data ?? {}, render: e.render?.bind(e) }));
-} catch {
-  const modules = import.meta.glob("/src/content/articulos/**/*.{md,mdx}", { eager: true }) as Record<string, any>;
-  posts = Object.entries(modules).map(([path, mod]) => {
-    const slug = path.split("/").pop()?.replace(/\.(md|mdx)$/i, "") ?? path;
-    const data = mod.frontmatter ?? mod.metadata ?? {};
-    return { slug, data };
-  });
-}
+const siteTitle = "Lumen Arkhé";
 
-posts.sort((a, b) => {
-  const da = toDateSafe(a.data.date) ?? new Date(0);
-  const db = toDateSafe(b.data.date) ?? new Date(0);
-  return db.getTime() - da.getTime();
-});
-
-const secRaw = Astro.url.searchParams.get("sec");
-const temaRaw = Astro.url.searchParams.get("tema");
-const q = (Astro.url.searchParams.get("q") || "").trim().toLowerCase();
+const secRaw = Astro.url.searchParams.get("sec") ?? "";
+const temaRaw = Astro.url.searchParams.get("tema") ?? "";
+const qRaw = (Astro.url.searchParams.get("q") ?? "").trim();
 
 const sec = norm(secRaw);
 const tema = norm(temaRaw);
+const q = qRaw.toLowerCase();
 
-const filtered = posts.filter((p) => {
-  if (p.data?.draft) return false;
+const entries = await getCollection("articulos");
 
-  const sectionRaw = String(p.data.section ?? p.data.seccion ?? "");
+const posts = entries
+  .filter((e) => !e.data?.draft)
+  .sort((a, b) => toDateSafe(b.data?.date).getTime() - toDateSafe(a.data?.date).getTime());
+
+const filtered = posts.filter((e) => {
+  const sectionRaw = String(e.data?.section ?? e.data?.seccion ?? "");
   const section = norm(sectionRaw);
 
-  const tagsStrRaw = String(p.data.tag ?? p.data.tema ?? "");
-  const tagsStr = norm(tagsStrRaw);
+  const tagRaw = String(e.data?.tag ?? e.data?.tema ?? "");
+  const tag = norm(tagRaw);
 
-  const tagsArrRaw = Array.isArray(p.data.temas)
-    ? p.data.temas
-    : Array.isArray(p.data.tags)
-    ? p.data.tags
+  const temasRaw = Array.isArray(e.data?.temas)
+    ? e.data.temas
+    : Array.isArray(e.data?.tags)
+    ? e.data.tags
     : [];
-  const tagsArr = tagsArrRaw.map((t: any) => norm(t));
+  const temas = temasRaw.map((t: any) => norm(t));
 
-  const title = String(p.data.title ?? "");
-  const deck = String(p.data.deck ?? p.data.description ?? p.data.excerpt ?? "");
-  const hay = `${title} ${deck} ${sectionRaw} ${tagsStrRaw} ${tagsArrRaw.join(" ")}`.toLowerCase();
+  const title = String(e.data?.title ?? e.slug);
+  const deck = String(e.data?.deck ?? e.data?.description ?? e.data?.excerpt ?? "");
+  const hay = `${title} ${deck} ${sectionRaw} ${tagRaw} ${temasRaw.join(" ")}`.toLowerCase();
 
   if (sec && section !== sec) return false;
-  if (tema && !(tagsStr.includes(tema) || tagsArr.includes(tema))) return false;
+  if (tema && !(tag.includes(tema) || temas.includes(tema))) return false;
   if (q && !hay.includes(q)) return false;
+
   return true;
 });
 
-const siteTitle = "Lumen Arkhé";
 const sections = [
   { label: "Ensayos", href: "/articulos?sec=Ensayos" },
   { label: "Reseñas", href: "/articulos?sec=Reseñas" },
   { label: "Crónica", href: "/articulos?sec=Crónica" },
 ];
+
 const extras = [
   { label: "Archivo PDF", href: "/pdf" },
   { label: "Newsletter", href: "/newsletter" },
@@ -115,14 +103,53 @@ const extras = [
       <form method="get" action="/articulos">
         {secRaw ? <input type="hidden" name="sec" value={secRaw} /> : null}
         {temaRaw ? <input type="hidden" name="tema" value={temaRaw} /> : null}
-        <input type="text" name="q" value={q} placeholder="Búsqueda" />
+        <input type="text" name="q" value={qRaw} placeholder="Búsqueda" />
         <button type="submit">Buscar</button>
       </form>
-      {(secRaw || temaRaw || q) ? <a class="small" href="/articulos">Limpiar filtros</a> : null}
+      {(secRaw || temaRaw || qRaw) ? <a class="small" href="/articulos">Limpiar filtros</a> : null}
     </div>
 
     <hr class="rule" />
 
     <h1>Artículos</h1>
-    {(secRaw || temaRaw || q) ? (
+
+    {(secRaw || temaRaw || qRaw) ? (
       <p class="lede">
+        {secRaw ? <span>Sección: <b>{secRaw}</b>. </span> : null}
+        {temaRaw ? <span>Tema: <b>{temaRaw}</b>. </span> : null}
+        {qRaw ? <span>Búsqueda: <b>{qRaw}</b>. </span> : null}
+        <span>Resultados: <b>{filtered.length}</b>.</span>
+      </p>
+    ) : (
+      <p class="lede">Archivo editorial.</p>
+    )}
+
+    <ol class="list">
+      {filtered.map((e) => {
+        const title = String(e.data?.title ?? e.slug);
+        const deck = String(e.data?.deck ?? e.data?.description ?? e.data?.excerpt ?? "");
+        const author = String(e.data?.author ?? e.data?.autor ?? "");
+        const section = String(e.data?.section ?? e.data?.seccion ?? "");
+        const date = fmtDate(e.data?.date);
+
+        return (
+          <li class="li">
+            <a href={"/articulos/" + e.slug}>
+              <div class="meta">
+                {section ? <span>{section}</span> : null}
+                {date ? <span>{date}</span> : null}
+                {author ? <span>{author}</span> : null}
+              </div>
+              <div class="title">{title}</div>
+              {deck ? <div class="deck">{deck}</div> : null}
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+
+    <footer class="footer">
+      <span>© {new Date().getFullYear()} {siteTitle}.</span>
+    </footer>
+  </div>
+</Base>
