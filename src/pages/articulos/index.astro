@@ -83,22 +83,6 @@ const extras = [
 
 <Base title={`Artículos — ${siteTitle}`} description="Archivo de textos.">
   <div class="wrap">
-    <div class="topbar">
-      <div class="lang">
-        <a class="on" href="#">ES</a><span class="dot">•</span><a class="off" href="#">EN</a>
-      </div>
-      <a href="#" style="text-decoration:none;opacity:.85">Ingresa</a>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:10px">
-      <a class="brand" href="/"><b>{siteTitle}</b><span>Revista / Archivo</span></a>
-      <nav class="nav" aria-label="Secciones">
-        {sections.map((i) => <a href={i.href}>{i.label}</a>)}
-        <span class="sep" aria-hidden="true"> · </span>
-        {extras.map((i) => <a href={i.href}>{i.label}</a>)}
-      </nav>
-    </div>
-
     <div class="search">
       <form method="get" action="/articulos">
         {secRaw ? <input type="hidden" name="sec" value={secRaw} /> : null}
