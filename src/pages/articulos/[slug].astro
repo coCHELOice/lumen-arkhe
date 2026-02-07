@@ -44,33 +44,7 @@ const chronicleDateText = (() => {
 ---
 
 <Base title={`${title} — ${siteTitle}`} description={deck}>
-  <div class="a-wrap">
-    <header class="a-head">
-      <div class="a-head__top">
-        <div class="a-lang">
-          <a class="a-lang__on" href="#" aria-current="true">ES</a>
-          <span class="a-dot">•</span>
-          <a class="a-lang__off" href="#">EN</a>
-        </div>
-
-        <div class="a-title">
-          <a class="a-title__brand" href="/">{siteTitle.toUpperCase()}</a>
-        </div>
-
-        <a class="a-ingresa" href="#">INGRESA</a>
-      </div>
-
-      <nav class="a-menu" aria-label="Secciones">
-        <a class="a-menu__a" href="/articulos?sec=Ensayos">ENSAYOS</a>
-        <a class="a-menu__a" href="/articulos?sec=Reseñas">RESEÑAS</a>
-        <a class="a-menu__a" href="/articulos?sec=Crónica">CRÓNICA</a>
-        <a class="a-menu__a" href="/pdf">ARCHIVO PDF</a>
-        <span class="a-bar" aria-hidden="true">|</span>
-        <a class="a-menu__a" href="/articulos">BÚSQUEDA</a>
-      </nav>
-    </header>
-
-    <article class="a-article">
+  <article class="a-article">
       <div class="a-article__meta">
         {section ? <span>{section}</span> : null}
         {date ? <><span class="a-dot">•</span><span>{date}</span></> : null}
@@ -115,20 +89,4 @@ const chronicleDateText = (() => {
         <Content />
       </div>
     </article>
-
-    <footer class="a-foot">© {new Date().getFullYear()} {siteTitle}.</footer>
-  </div>
 </Base>
-
-<style>
-  /* Sticky header/menu fijo (reversible) */
-  .a-head{
-    position: sticky;
-    top: 0;
-    z-index: 9999;
-    background: rgba(247, 244, 238, 0.92);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0,0,0,.08);
-  }
-</style>
