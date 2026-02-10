@@ -1,0 +1,68 @@
+---
+title: 'Soberanía térmica (1/8): la IA como institución energética'
+date: 2026-02-10
+deck: Cuando el cómputo se vuelve infraestructura.
+description: >-
+  A medianoche un centro de datos se parece a una fábrica: por qué la IA empuja
+  demanda eléctrica, densidad térmica y nuevas reglas de capacidad.
+section: Ensayos
+tag: Soberanía térmica
+temas:
+  - IA
+  - Energía
+  - Infraestructura
+  - Centros de datos
+  - Termodinámica
+  - Economía política
+author: Gregorio Augusto Burdiles
+featured: true
+draft: false
+hero: >-
+  /images/articulos/soberania-termica-01-la-ia-como-institucion-energetica/hero.png
+---
+**Serie:** [Soberanía térmica](/articulos/soberania-termica-indice) (1/8)\
+**Anterior:** [0/8 — La nube deja de ser metáfora](/articulos/soberania-termica-00-la-nube-deja-de-ser-metafora)\
+**Dossier:** [Índice de la serie](/articulos/soberania-termica-indice)
+
+A medianoche, un centro de datos no se parece a “internet”: se parece a una fábrica. Hay zumbidos constantes, filas de gabinetes, sensores, bombas, tuberías, transformadores. Y un detalle que ya no es metáfora: el producto real no es “información”, es cómputo; y el insumo crítico no es “datos”, es electricidad firme. Por eso la pregunta por la “alimentación” energética de la inteligencia artificial —quién la provee, cómo, a qué costo y con qué efectos— dejó de ser un asunto técnico lateral: se está volviendo un capítulo central de la economía política contemporánea.
+
+Partamos por lo esencial: sí, el aumento del uso de IA suma a la creciente necesidad de generación eléctrica. A escala global, la International Energy Agency (IEA) proyecta que el consumo eléctrico de los centros de datos más que se duplicará hacia 2030, alcanzando alrededor de 945 TWh, y enfatiza que la IA es el impulsor más importante de ese crecimiento. En otras palabras: aunque la digitalización ya consumía energía, la ola actual es distinta por ritmo y concentración, y el “componente IA” aparece explícitamente como causa.
+
+Ahora bien, el impacto no se entiende solo en kilovatios-hora anuales (TWh), sino en potencia disponible (MW) y, sobre todo, en continuidad. La IA se apoya en servidores acelerados (GPUs/TPUs) que elevan la densidad energética por rack, y esa densidad convierte al centro de datos en un consumidor que exige suministro estable, con tolerancia baja a interrupciones. Por eso en ciertas regiones el problema no es “falta de computadores”, sino “falta de subestaciones y capacidad de conexión”. La infraestructura eléctrica, que parecía una capa “dada”, vuelve a ser el cuello de botella.
+
+Estados Unidos muestra con nitidez esta transición. Un informe del Departamento de Energía (DOE) basado en trabajo de Lawrence Berkeley National Laboratory (LBNL) estima que los centros de datos consumieron ~176 TWh en 2023 (aprox. 4,4% del total nacional). Y proyecta para 2028 un rango de ~325 a 580 TWh, equivalente a ~6,7% a 12% del consumo total. No es un margen pequeño: implica que una fracción relevante del sistema eléctrico se reorienta hacia infraestructura digital, y el auge de la IA aparece como fuerza que vuelve a empujar la demanda tras años más planos.
+
+Aquí surge una objeción típica: “pero si la IA mejora la eficiencia, ¿no debería reducir la demanda?”. La respuesta es incómoda precisamente porque es realista: la eficiencia reduce el costo por unidad de cómputo, pero eso suele expandir el uso total. En economía de la energía se conoce como efecto rebote (y su intuición clásica se asocia a Jevons): abaratas el servicio y aparecen nuevos usos, más frecuencia, más despliegue. No es una ley universal, pero es un patrón robusto cuando hay demanda latente e incentivos fuertes de escala.
+
+Conviene anclar esto con un ejemplo real de eficiencia medible, para no caer en caricaturas. Google/DeepMind reportó en 2016 que el control con aprendizaje automático aplicado al enfriamiento logró reducir cerca de 40% la energía usada en refrigeración, con una mejora aproximada del 15% en el overhead total medido por PUE. Eso importa: significa que una parte grande de la energía que antes se iba en “mantener vivo el edificio” se recupera para trabajo útil. Pero el efecto estratégico suele ser otro: estos avances habilitan escala. No garantizan “menos consumo total” si, al mismo tiempo, se instalan más centros y se aumenta la intensidad de uso.
+
+De hecho, el rasgo físico decisivo de la IA es la densidad. Cuando subes potencia por rack, el aire deja de ser suficiente o se vuelve carísimo. Y esa densidad explica la migración hacia enfriamiento líquido (direct-to-chip, sistemas híbridos, inmersión). No es estética futurista: es termodinámica aplicada. A esa densidad, el centro de datos se parece menos a “salas de servidores” y más a infraestructura industrial: ingeniería eléctrica, hidráulica, redundancia térmica, detección de fallas y, sobre todo, acceso a potencia firme.
+
+Por eso la discusión se ha desplazado hacia un territorio que parece aburrido —y por eso mismo es decisivo—: interconexión, tarifas, reglas de acceso y obligación de flexibilidad. Un ejemplo reciente es PJM Interconnection (una de las redes más grandes de EE. UU.), que en enero de 2026 anunció un marco para conectar grandes cargas de manera confiable, incluyendo enfoques tipo “connect and manage” donde nuevos grandes consumidores pueden ser requeridos a traer generación adicional o aceptar curtailment (recortes) bajo ciertas condiciones. La señal es clara: el data center deja de ser un cliente pasivo y pasa a ser un actor que debe negociar su lugar en la red.
+
+Ese giro ayuda a entender por qué el sector tecnológico ha vuelto la mirada hacia energía “firme” y contratos largos. El caso emblemático es el acuerdo asociado a la reactivación de Three Mile Island Unit 1 (rebautizada como Crane Clean Energy Center): Constellation anunció en 2024 un contrato de compra vinculado a Microsoft para restaurar la planta, del orden de ~835 MW. En paralelo, se multiplican acuerdos y planes alrededor de reactores modulares pequeños (SMRs), como el anuncio de Google con Kairos Power (primera unidad hacia 2030 y despliegues posteriores), con metas de potencia “carbon-free” 24/7 a mediano plazo. El mensaje de fondo no es “nuclear sí/no”, sino algo más simple: cuando la IA escala, la disponibilidad de MW continuos se vuelve estratégica.
+
+De aquí se desprende una tesis sobria: la IA está empujando una transición en que el cómputo deja de ser “capacidad abstracta” y se vuelve institución energética. El centro de datos se define por su relación con el territorio eléctrico (subestaciones, líneas, mercados de capacidad), por su relación con el agua (enfriamiento líquido, gestión térmica), y por su relación con la política (permisos, licencias sociales, tarifas, obligaciones de flexibilidad). A medida que crece el despliegue, el conflicto distributivo se vuelve explícito: ¿quién paga la expansión de infraestructura?, ¿cómo se protege al consumidor residencial?, ¿qué reglas evitan que la urgencia privada capture el planeamiento público?
+
+**Conclusión.** La pregunta “¿la IA suma a la necesidad de generación?” ya tiene respuesta empírica: sí, globalmente y con especial intensidad en ciertas regiones. La pregunta sociológicamente decisiva, la que viene, es otra: cómo se gobierna la capacidad. Esto abre una teoría sociológica con un núcleo simple: en la era de la IA, la unidad política relevante ya no es solo el “mercado” o el “Estado”, sino el régimen de capacidad: la red, sus reglas de acceso, su promesa de continuidad y su modo de repartir escasez. La IA no es únicamente una tecnología; es un actor institucional que presiona por reescribir contratos sociales invisibles (tarifas, permisos, prioridad de suministro, externalidades territoriales). Quien gobierna esa capacidad —su planificación, su legitimidad y su distribución— gobierna, en buena medida, el horizonte real de la inteligencia artificial.
+
+---
+
+### Puente
+
+En el próximo episodio: por qué el problema no se entiende solo en TWh, sino en **capacidad**, **red**, **interconexión** y **tiempo institucional** —el verdadero “cuello de botella”.
+
+**Índice de la serie:** [Soberanía térmica — Índice](/articulos/soberania-termica-indice)\
+**Anterior (0/8):** [La nube deja de ser metáfora](/articulos/soberania-termica-00-la-nube-deja-de-ser-metafora)\
+**Siguiente (2/8):** IA y energía: el nuevo cuello de botella (próximamente)
+
+---
+
+### Fuentes citadas (selección)
+
+- IEA — “Energy demand from AI / Energy and AI” (proyección ~945 TWh hacia 2030).
+- U.S. Department of Energy — “DOE Releases New Report Evaluating Increase in Electricity Demand from Data Centers” (176 TWh en 2023; 325–580 TWh hacia 2028).
+- DeepMind (Google) — “DeepMind AI reduces Google data centre cooling bill by 40%” (2016).
+- PJM — “PJM Board Outlines Plans To Integrate Large Loads Reliably” (enero 2026; “connect and manage” y curtailment).
+- Constellation — anuncio sobre Crane Clean Energy Center / restart de TMI Unit 1 (PPA a 20 años con Microsoft; ~835 MW).
+- Google — “New nuclear clean energy agreement with Kairos Power” (primera unidad hacia 2030; hasta ~500 MW 24/7 CFE).
