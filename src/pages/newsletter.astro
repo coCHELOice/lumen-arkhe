@@ -8,148 +8,269 @@ const substackSubscribe = "https://gregorioaugusto.substack.com/subscribe";
   <main class="newsletter">
     <header class="newsletter__head">
       <h1>Suscripción</h1>
-      <p>Recibe ensayos y actualizaciones editoriales (sin spam).</p>
+      <p>Recibe ensayos y actualizaciones editoriales directamente en tu bandeja.</p>
     </header>
 
-    <section class="newsletter__grid">
-      <div class="newsletter__card">
-        <h2 class="newsletter__h2">Formulario</h2>
-        <p class="newsletter__muted">Toma 10 segundos.</p>
+    <div class="newsletter__layout">
+      <!-- Sección Izquierda: Formulario -->
+      <section class="newsletter__main-card">
+        <div class="card-content">
+          <h2 class="card-title">Suscríbete ahora</h2>
+          <p class="card-desc">Únete a la comunidad de lectores. Toma menos de 10 segundos.</p>
 
-        <div class="newsletter__embed" aria-label="Formulario de suscripción">
-          <iframe
-            src={substackEmbed}
-            width="480"
-            height="320"
-            style="border:1px solid #EEE; background:white;"
-            frameborder="0"
-            scrolling="no"
-            title="Suscripción Substack"
-          ></iframe>
+          <div class="newsletter__embed" aria-label="Formulario de suscripción">
+            <iframe
+              src={substackEmbed}
+              width="480"
+              height="320"
+              style="border:1px solid #333; background:white;"
+              frameborder="0"
+              scrolling="no"
+              title="Suscripción Substack"
+            ></iframe>
+          </div>
+
+          <div class="card-footer">
+            <p class="card-note">
+              ¿No carga el formulario?
+              <a href={substackSubscribe} target="_blank" rel="noreferrer">Suscríbete directamente aquí</a>.
+            </p>
+            <a class="back-link" href="/">← Volver al inicio</a>
+          </div>
         </div>
+      </section>
 
-        <p class="newsletter__alt">
-          Si no carga el formulario:
-          <a href={substackSubscribe} target="_blank" rel="noreferrer">suscríbete aquí</a>.
-        </p>
-
-        <p class="newsletter__backline">
-          <a class="newsletter__back" href="/">← Volver al Home</a>
-        </p>
-      </div>
-
-      <aside class="newsletter__side">
-        <div class="newsletter__card">
-          <h2 class="newsletter__h2">Qué recibirás</h2>
-          <ul class="newsletter__list">
-            <li>Ensayos: política, burocracia, técnica y vida pública.</li>
-            <li>Archivo curado: textos recomendados y relecturas.</li>
-            <li>Notas breves: avances editoriales y publicaciones.</li>
+      <!-- Sección Derecha: Beneficios (Qué recibirás) -->
+      <aside class="newsletter__benefits">
+        <div class="benefits-card">
+          <h3 class="benefits-title">Lo que recibirás</h3>
+          
+          <ul class="benefits-list">
+            <li class="benefit-item">
+              <span class="benefit-icon">✒️</span>
+              <div class="benefit-text">
+                <strong>Ensayos profundos</strong>
+                <span>Política, burocracia, técnica y vida pública.</span>
+              </div>
+            </li>
+            <li class="benefit-item">
+              <span class="benefit-icon">📚</span>
+              <div class="benefit-text">
+                <strong>Archivo curado</strong>
+                <span>Textos recomendados y relecturas esenciales.</span>
+              </div>
+            </li>
+            <li class="benefit-item">
+              <span class="benefit-icon">⚡</span>
+              <div class="benefit-text">
+                <strong>Notas breves</strong>
+                <span>Avances editoriales y nuevas publicaciones.</span>
+              </div>
+            </li>
           </ul>
-          <p class="newsletter__muted">Frecuencia: 1–2 envíos por semana (aprox.).</p>
-        </div>
 
-        <div class="newsletter__card">
-          <p class="newsletter__muted">
-            Puedes darte de baja en cualquier momento. Tu correo no se comparte.
-          </p>
-          <a class="newsletter__back" href="/">← Volver al Home</a>
+          <div class="benefits-footer">
+            <p>Frecuencia: <strong>1–2 envíos por semana</strong> (aprox).</p>
+            <p class="privacy-note">Sin spam. Tu correo es privado. Date de baja cuando quieras.</p>
+          </div>
         </div>
       </aside>
-    </section>
+    </div>
   </main>
 
   <style>
-    .newsletter {
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 28px 16px 44px;
+    /* Variables y Reset */
+    :root {
+      --bg-premium: #0a0a0a;
+      --bg-card: #111111;
+      --border-color: #2a2a2a;
+      --text-white: #ffffff;
+      --text-gray: #a1a1aa;
+      --accent-glow: rgba(255, 255, 255, 0.08);
+      --font-main: system-ui, -apple-system, sans-serif;
     }
+
+    .newsletter {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+      font-family: var(--font-main);
+      color: var(--text-white);
+    }
+
+    /* Header */
+    .newsletter__head {
+      text-align: center;
+      margin-bottom: 40px;
+      color: inherit; /* Hereda del layout base si es oscuro */
+    }
+    
+    /* Aseguramos que el texto fuera de las cards sea legible según el tema global */
+    :global(body.light) .newsletter__head { color: #111; }
+    :global(body.dark) .newsletter__head { color: #fff; }
 
     .newsletter__head h1 {
-      margin: 0 0 6px;
-      font-size: 2rem;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-bottom: 10px;
     }
-
     .newsletter__head p {
-      margin: 0 0 18px;
-      opacity: 0.85;
+      font-size: 1.1rem;
+      opacity: 0.8;
     }
 
-    .newsletter__grid {
+    /* Layout Grid */
+    .newsletter__layout {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 14px;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
       align-items: start;
     }
 
     @media (max-width: 900px) {
-      .newsletter__grid { grid-template-columns: 1fr; }
+      .newsletter__layout { grid-template-columns: 1fr; }
     }
 
-    .newsletter__card {
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      border-radius: 16px;
-      padding: 24px;
-      background: #ff6719; /* Naranja Substack */
-      box-shadow: 0 12px 40px rgba(255, 103, 25, 0.15);
-      color: #fff; /* Texto blanco sobre naranja */
+    /* Estilos Comunes de Tarjetas Premium */
+    .newsletter__main-card, .benefits-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      color: var(--text-white);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .newsletter__h2 {
+    .newsletter__main-card:hover, .benefits-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      border-color: #444;
+    }
+
+    /* Sección Izquierda: Formulario */
+    .card-title {
+      font-size: 1.5rem;
       margin: 0 0 8px;
-      font-size: 1.1rem;
+      font-weight: 700;
     }
-
-    .newsletter__muted {
-      margin: 0 0 10px;
-      opacity: 0.75;
-      font-size: 0.95rem;
+    .card-desc {
+      color: var(--text-gray);
+      margin-bottom: 20px;
     }
 
     .newsletter__embed {
-      margin-top: 12px;
-      display: flex;
-      justify-content: center;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
     }
-
     .newsletter__embed iframe {
-      width: min(520px, 100%);
-      height: 320px;
-      border-radius: 12px;
+      width: 100%;
+      display: block;
     }
 
-    .newsletter__alt {
-      margin-top: 12px;
-      opacity: 0.85;
-      font-size: 0.95rem;
+    .card-footer {
+      margin-top: 24px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-
-    .newsletter__list {
-      margin: 10px 0 8px;
-      padding-left: 18px;
+    .card-note {
+      font-size: 0.9rem;
+      color: var(--text-gray);
     }
-
-    .newsletter__list li { margin: 6px 0; }
-
-    .newsletter__backline { margin-top: 14px; }
-
-    .newsletter__back {
+    .card-note a {
+      color: var(--text-white);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    
+    .back-link {
       display: inline-block;
+      color: var(--text-gray);
       text-decoration: none;
-      font-weight: 650;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 8px 12px;
-      border-radius: 12px;
-      color: white;
+      font-size: 0.95rem;
+      transition: color 0.2s;
     }
-    .newsletter__back:hover { background: rgba(255,255,255,0.2); }
+    .back-link:hover {
+      color: var(--text-white);
+    }
 
-    .newsletter__card a:not(.newsletter__back) {
-      color: white;
-      text-decoration-color: rgba(255,255,255,0.5);
+    /* Sección Derecha: Beneficios - Más dinámica */
+    .benefits-title {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-gray);
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
     }
-    .newsletter__card ul { padding-left: 20px; }
+
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .benefit-item:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .benefit-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+      padding-top: 2px;
+    }
+
+    .benefit-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .benefit-text strong {
+      font-size: 1.05rem;
+      color: var(--text-white);
+    }
+    .benefit-text span {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      line-height: 1.4;
+    }
+
+    .benefits-footer {
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      background: rgba(0,0,0,0.2);
+      padding: 16px;
+      border-radius: 12px;
+    }
+    .benefits-footer p { margin: 4px 0; }
+    .privacy-note {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 8px;
+    }
+
   </style>
 </BaseLayout>
 
