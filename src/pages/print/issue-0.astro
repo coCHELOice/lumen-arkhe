@@ -1,0 +1,324 @@
+---
+import { getCollection } from "astro:content";
+import PrintLayout from "../../layouts/PrintLayout.astro";
+import { marked } from "marked"; // Necesitamos renderizar MD a HTML si usamos body crudo o Astro Content
+
+// 1. Obtener artículos
+const allPosts = await getCollection("articulos");
+// Filtramos solo los publicados y ordenamos por fecha (o manualmente si tuvieras un orden)
+const issue0 = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Autores únicos para la portada
+const authors = [...new Set(issue0.map((a) => a.data.author))].filter(Boolean).sort();
+
+// Fecha de publicación del número
+const pubDate = "Febrero 2026";
+---
+
+<PrintLayout>
+  <!-- PORTADA -->
+  <section class="cover">
+    <div class="cover-header">
+      <span class="cover-issue">NÚMERO 0</span>
+      <span class="cover-date">{pubDate.toUpperCase()}</span>
+    </div>
+    
+    <div class="cover-title-box">
+      <h1 class="cover-title">LUMEN ARKHÉ</h1>
+      <p class="cover-subtitle">ENSAYOS SOBRE POLÍTICA, TÉCNICA Y VIDA PÚBLICA</p>
+    </div>
+
+    <div class="cover-art">
+      <!-- Arte abstracto generado con CSS o imagen -->
+      <div class="art-circle"></div>
+      <div class="art-line"></div>
+    </div>
+
+    <div class="cover-authors">
+      <p class="intro">ESCRIBEN EN ESTE NÚMERO:</p>
+      <ul class="author-list">
+        {authors.map((auth) => <li>{auth}</li>)}
+      </ul>
+    </div>
+    
+    <div class="cover-footer">
+      <span>WWW.LUMENARKHE.COM</span>
+      <span>ISSN: PENDIENTE</span>
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- ÍNDICE -->
+  <section class="toc">
+    <h2 class="toc-title">Índice</h2>
+    <ul class="toc-list">
+      {issue0.map((post) => (
+        <li>
+          <a href={`#${post.slug}`}>
+            <span class="toc-entry-title">{post.data.title}</span>
+            <span class="toc-entry-author">{post.data.author}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- ARTÍCULOS -->
+  <main class="content">
+    {issue0.map(async (post) => {
+      const { Content } = await post.render();
+      return (
+        <article id={post.slug} class="article page-break">
+          <header class="article-header">
+            <span class="article-meta">{post.data.section?.toUpperCase()} • {post.data.date.toLocaleDateString("es-ES", { year: 'numeric', month: 'long' })}</span>
+            <h1 class="article-title">{post.data.title}</h1>
+            <p class="article-deck">{post.data.deck || post.data.description}</p>
+            <div class="article-byline">Por <strong>{post.data.author}</strong></div>
+          </header>
+          
+          <div class="article-body">
+            <Content />
+          </div>
+
+          <div class="article-end-mark">■</div>
+        </article>
+      );
+    })}
+  </main>
+</PrintLayout>
+
+<style>
+  /* --- PORTADA --- */
+  .cover {
+    height: 100vh; /* Ocupa toda la hoja */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0; 
+    text-align: center;
+    position: relative;
+  }
+  .cover-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid black;
+    padding-bottom: 10px;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    font-weight: bold;
+    font-family: var(--font-display);
+  }
+  .cover-title-box {
+    margin-top: 4rem;
+  }
+  .cover-title {
+    font-size: 82px;
+    margin: 0;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .cover-subtitle {
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+  .cover-art {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .art-circle {
+    width: 200px;
+    height: 200px;
+    border: 1px solid black;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .art-line {
+    width: 1px;
+    height: 100%;
+    background: black;
+    position: absolute;
+    left: 50%;
+  }
+
+  .cover-authors {
+    margin-bottom: 4rem;
+    text-align: center;
+  }
+  .cover-authors .intro {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+  .author-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    max-width: 80%;
+    margin: 0 auto;
+  }
+  .author-list li {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-style: italic;
+  }
+
+  .cover-footer {
+    border-top: 1px solid black;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  /* --- ÍNDICE --- */
+  .toc {
+    padding-top: 4rem;
+  }
+  .toc-title {
+    font-size: 32px;
+    border-bottom: 1px solid black;
+    margin-bottom: 2rem;
+    padding-bottom: 0.5rem;
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+  }
+  .toc-list li {
+    margin-bottom: 1rem;
+  }
+  .toc-list a {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted #ccc;
+    align-items: baseline;
+  }
+  .toc-entry-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    background: white;
+    padding-right: 5px;
+    font-weight: bold;
+  }
+  .toc-entry-author {
+    font-size: 14px;
+    font-style: italic;
+    background: white;
+    padding-left: 5px;
+  }
+
+  /* --- ARTÍCULOS --- */
+  .article {
+    padding-top: 2rem;
+  }
+  .article-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .article-meta {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .article-title {
+    font-size: 42px;
+    margin-bottom: 1rem;
+  }
+  .article-deck {
+    font-size: 18px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    max-width: 80%;
+    margin: 0 auto 1.5rem;
+    opacity: 0.8;
+  }
+  .article-byline {
+    font-size: 14px;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    display: inline-block;
+    padding: 5px 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .article-body {
+    column-count: 2;
+    column-gap: 2rem;
+    text-align: justify;
+    widows: 3;
+    orphans: 3;
+  }
+  /* Estilo letra capital */
+  .article-body > p:first-of-type::first-letter {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    float: left;
+    line-height: 0.8;
+    margin-right: 0.5rem;
+    margin-top: 0.2rem;
+    font-weight: 700;
+  }
+  
+  /* Citas destacadas */
+  .article-body blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-left: 3px solid black;
+    font-style: italic;
+    font-family: var(--font-display);
+    font-size: 1.2em;
+    break-inside: avoid; /* Evitar que se rompa entre páginas/columnas */
+  }
+
+  /* Imágenes en el cuerpo */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+    break-inside: avoid;
+  }
+
+  .article-end-mark {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 12px;
+  }
+  
+  /* Ajustes impresión */
+  @media print {
+    /* Aseguramos columnas y saltos */
+    .article-body { column-count: 2; }
+    /* El navegador puede ignorar column-count si no hay suficiente altura, pero en print suele respetar */
+    
+    /* Enlaces: quitar subrayado azul, mostrar destino opcionalmente (no aquí) */
+    a { text-decoration: none; color: black; }
+  }
+
+</style>

@@ -498,6 +498,12 @@ img.no-bw {
 .a-hero__by {
   position: relative;
   z-index: 2;
+  pointer-events: none;
+}
+
+/* Los dots del slider sí deben ser clickeables */
+.a-hero__lines {
+  pointer-events: auto;
 }
 
 .a-hero__h1 {
@@ -1793,4 +1799,819 @@ html.nlpop-open {
   border-color: var(--accent);
   text-decoration: none;
   transform: translateY(-2px);
+}
+
+/* ---------- 18) TOC lateral flotante ---------- */
+.a-toc {
+  position: fixed;
+  top: 100px;
+  right: calc((100vw - 880px) / 2 - 220px);
+  width: 200px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  z-index: 100;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+  pointer-events: none;
+}
+
+.a-toc.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.a-toc__title {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.a-toc__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 2px solid var(--hair);
+}
+
+.a-toc__item {
+  padding: 4px 0 4px 14px;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.a-toc__item a {
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity var(--t-fast) var(--ease);
+}
+
+.a-toc__item a:hover {
+  opacity: 1;
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.a-toc__item.is-active {
+  border-left-color: var(--accent);
+}
+
+.a-toc__item.is-active a {
+  opacity: 1;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 1280px) {
+  .a-toc {
+    display: none;
+  }
+}
+
+/* ---------- 19) Modo lectura Zen ---------- */
+.a-zen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease);
+  opacity: 0.7;
+}
+
+.a-zen-btn:hover {
+  opacity: 1;
+  border-color: var(--accent);
+}
+
+html.zen-mode .a-head,
+html.zen-mode .a-foot,
+html.zen-mode .a-article__meta,
+html.zen-mode .a-article__hero,
+html.zen-mode .a-share,
+html.zen-mode .a-related,
+html.zen-mode .a-series-nav,
+html.zen-mode .a-toc,
+html.zen-mode .a-backtop,
+html.zen-mode .a-progress {
+  display: none !important;
+}
+
+html.zen-mode .a-article {
+  max-width: 680px;
+  margin: 60px auto;
+}
+
+html.zen-mode .a-prose {
+  font-size: 20px;
+  line-height: 1.85;
+}
+
+/* ---------- 20) Navegación de serie ---------- */
+.a-series-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 2px solid var(--hair);
+}
+
+.a-series-nav__link {
+  flex: 1;
+  display: block;
+  padding: 14px 16px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  text-decoration: none;
+  background: var(--paper);
+  transition: all var(--t-mid) var(--ease);
+}
+
+.a-series-nav__link:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.a-series-nav__label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.a-series-nav__title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.a-series-nav__link--next {
+  text-align: right;
+}
+
+@media (max-width: 560px) {
+  .a-series-nav {
+    flex-direction: column;
+  }
+}
+
+/* ---------- 21) Portada generativa SVG ---------- */
+.a-gencover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.a-gencover svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.a-gencover__text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  padding: 16px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- 22) Carrusel horizontal ---------- */
+.a-carousel {
+  margin-top: 24px;
+  padding-bottom: 8px;
+}
+
+.a-carousel__h {
+  font-family: var(--serif);
+  font-size: 22px;
+  margin: 0 0 14px;
+}
+
+.a-carousel__track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hair) transparent;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.a-carousel__track::-webkit-scrollbar {
+  height: 4px;
+}
+
+.a-carousel__track::-webkit-scrollbar-thumb {
+  background: var(--hair);
+  border-radius: 4px;
+}
+
+.a-carousel__card {
+  scroll-snap-align: start;
+  flex: 0 0 240px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+  text-decoration: none;
+  display: block;
+  transition: all var(--t-mid) var(--ease);
+}
+
+.a-carousel__card:hover {
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+
+.a-carousel__thumb {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.a-carousel__body {
+  padding: 12px;
+}
+
+.a-carousel__card-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.25;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.a-carousel__card-meta {
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+/* ---------- 23) Serie destacada (home) ---------- */
+.a-featured-series {
+  margin: 28px 0 8px;
+  padding: 20px 24px;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: box-shadow var(--t-mid) var(--ease);
+}
+
+.a-featured-series:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.a-featured-series__badge {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.a-featured-series__info {
+  flex: 1;
+}
+
+.a-featured-series__title {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.a-featured-series__desc {
+  font-size: 13px;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.a-featured-series__progress {
+  width: 120px;
+  height: 6px;
+  background: var(--hair);
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.a-featured-series__bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width var(--t-slow) var(--ease);
+}
+
+@media (max-width: 640px) {
+  .a-featured-series {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .a-featured-series__progress {
+    width: 100%;
+  }
+}
+
+/* ---------- 24) Guardar para leer (bookmark) ---------- */
+.a-bookmark {
+  background: none;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all var(--t-fast) var(--ease);
+  color: var(--ink);
+}
+
+.a-bookmark:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.a-bookmark.is-saved {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ---------- 25) Notas al pie interactivas ---------- */
+.a-prose .footnote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.a-prose .footnote-ref:hover {
+  text-decoration: underline;
+}
+
+.a-footnote-tip {
+  position: absolute;
+  z-index: 10000;
+  max-width: 320px;
+  padding: 12px 16px;
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  font-style: normal;
+  animation: fadeUp 0.2s var(--ease);
+  pointer-events: none;
+}
+
+/* ---------- 26) Cursor personalizado en cards ---------- */
+@media (hover: hover) {
+
+  .a-li__a,
+  .a-carousel__card,
+  .a-related__card,
+  .a-series-card {
+    cursor: pointer;
+  }
+
+  .a-li__a:hover,
+  .a-carousel__card:hover,
+  .a-related__card:hover {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%232563eb' opacity='0.9'/%3E%3Ctext x='12' y='16' text-anchor='middle' fill='white' font-size='10' font-family='system-ui'%3E→%3C/text%3E%3C/svg%3E") 12 12, pointer;
+  }
+}
+
+/* ---------- 27) Estadísticas del sitio ---------- */
+.a-stats {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.a-stat {
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+}
+
+.a-stat__value {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.a-stat__label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ---------- 28) Hero entrada animada ---------- */
+@keyframes heroSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroZoomIn {
+  from {
+    transform: scale(1.08);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.a-hero[data-variant="split"] {
+  animation: heroSlideUp 0.8s var(--ease) both;
+}
+
+.a-hero__img img {
+  animation: heroZoomIn 1.2s var(--ease) both;
+}
+
+/* ---------- 29) Gradiente animado header (dark) ---------- */
+[data-theme="dark"] .a-head {
+  background:
+    linear-gradient(135deg, rgba(15, 17, 23, 0.95), rgba(13, 18, 32, 0.95)) padding-box,
+    linear-gradient(135deg, rgba(96, 165, 250, 0.08), rgba(129, 140, 248, 0.06)) border-box;
+  border-bottom-color: rgba(96, 165, 250, 0.1);
+}
+
+/* ---------- 30) Prefetch indicators ---------- */
+.a-li__a[data-prefetch]::after {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  margin-left: 6px;
+  vertical-align: middle;
+  transition: opacity var(--t-fast) var(--ease);
+}
+
+.a-li__a[data-prefetch]:hover::after {
+  opacity: 0.5;
+}
+
+/* ---------- 31) Mejoras "Estilo Átomo" ---------- */
+
+/* Artículos destacados con imagen */
+.a-feat-grid {
+  display: list-item;
+  list-style: none;
+  border-top: 1px solid var(--hair);
+  margin: 0;
+  padding: 0;
+}
+
+.a-feat-item {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--hair);
+  align-items: start;
+}
+
+.a-feat-item:last-child {
+  border-bottom: none;
+}
+
+.a-feat-item:first-child {
+  padding-top: 0;
+}
+
+.a-feat-item__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.a-feat-item__img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 8px;
+  background: var(--hover);
+  overflow: hidden;
+}
+
+.a-feat-item__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s var(--ease);
+}
+
+.a-feat-item:hover .a-feat-item__img img {
+  transform: scale(1.05);
+}
+
+.a-feat-item__meta {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.a-feat-item__title {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.25;
+  margin: 0 0 10px;
+  transition: color 0.2s;
+}
+
+.a-feat-item:hover .a-feat-item__title {
+  color: var(--accent);
+}
+
+.a-feat-item__deck {
+  font-size: 15px;
+  opacity: 0.8;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Banner Suscríbete */
+.a-cta-subscribe {
+  margin: 42px 0;
+  background: var(--paper);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.04);
+}
+
+.a-cta-subscribe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--accent);
+  opacity: 0.15;
+}
+
+.a-cta-subscribe__h {
+  font-family: var(--serif);
+  font-size: 28px;
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.a-cta-subscribe__p {
+  font-size: 16px;
+  opacity: 0.8;
+  max-width: 48ch;
+  margin: 0 auto 24px;
+}
+
+.a-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.a-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Card del Número (PDF) */
+.a-issue-promo {
+  display: flex;
+  gap: 24px;
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  padding: 24px;
+  border-radius: 16px;
+  margin-top: 32px;
+  align-items: center;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.a-issue-promo:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  text-decoration: none;
+  color: inherit;
+}
+
+.a-issue-promo__cover {
+  width: 140px;
+  flex-shrink: 0;
+  aspect-ratio: 3/4;
+  background: #eee;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.a-issue-promo__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.a-issue-promo__info {
+  flex: 1;
+}
+
+.a-issue-promo__label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.a-issue-promo__title {
+  font-family: var(--serif);
+  font-size: 26px;
+  margin: 0 0 8px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.a-issue-promo__desc {
+  font-size: 15px;
+  opacity: 0.75;
+  margin: 0 0 16px;
+  line-height: 1.5;
+  max-width: 45ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.a-issue-promo__cta {
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .a-feat-item {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .a-feat-item__img {
+    width: 100%;
+    aspect-ratio: 2/1;
+    order: -1;
+  }
+
+  .a-issue-promo {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .a-issue-promo__cover {
+    width: 160px;
+  }
+
+  .a-issue-promo__desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ---------- 32) Portada CSS Compartida ---------- */
+.css-cover {
+  width: 100%;
+  height: 100%;
+  background: #fbfaf7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8% 5%;
+  text-align: center;
+  color: #111;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+.css-cover__issue {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-family: var(--sans);
+}
+
+.css-cover__title {
+  font-size: 10px;
+  font-family: var(--serif);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.css-cover__circle {
+  width: 50%;
+  aspect-ratio: 1/1;
+  border: 1px solid #111;
+  border-radius: 50%;
+  position: relative;
+}
+
+.css-cover__line {
+  width: 1px;
+  height: 100%;
+  background: #111;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
 }

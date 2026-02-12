@@ -8,18 +8,33 @@ const showExport = import.meta.env.DEV;
 // ordena por fecha desc (soporta Date o string)
 const time = (v) => (v instanceof Date ? v.getTime() : new Date(v).getTime());
 
-const issuesRaw = await getCollection("issues");
+const issuesRaw = await getCollection("issues").catch(() => []);
 const issues = issuesRaw
   .slice()
   .sort((a, b) => time(b.data.date) - time(a.data.date))
    .map((e) => ({
-    id: e.id,
+    id: e.slug,
     title: e.data.title,
     period: e.data.period ?? "",
-    cover: e.data.cover ?? "/images/hero/fallback.jpg",
+    cover: e.data.cover ?? "",
     buyUrl: e.data.buyUrl ?? "",
     pdf: e.data.pdf ?? "",
+    href: `/issue/${e.slug}`
   }));
+
+// Inyectar manualmente el Número 0 si no está en la colección
+if (!issues.find(i => i.title.includes("N°0"))) {
+  issues.unshift({
+    id: "issue-0",
+    title: "Lumen Arkhé N°0",
+    period: "Febrero 2026",
+    cover: "", // Usaremos CSS cover
+    buyUrl: "",
+    pdf: "/print/issue-0", // Link directo a la versión de impresión
+    href: "/print/issue-0",
+    description: "Edición de lanzamiento. Ensayos sobre política, técnica y vida pública."
+  });
+}
 
 ---
 
@@ -37,28 +52,36 @@ const issues = issuesRaw
       ) : (
         issues.map((it) => (
           <article class="a-issueCard">
-            <div class="a-issueCard__cover">
-              <img src={it.cover} alt="" loading="lazy" decoding="async" />
-            </div>
+            <a class="a-issueCard__cover" href={it.href} target={it.pdf ? "_blank" : undefined}>
+              {it.cover ? (
+                <img src={it.cover} alt="" loading="lazy" decoding="async" />
+              ) : (
+                <div class="css-cover">
+                  <div class="css-cover__issue">N°0</div>
+                  <div class="css-cover__circle">
+                    <div class="css-cover__line"></div>
+                  </div>
+                  <div class="css-cover__title">LUMEN ARKHÉ</div>
+                </div>
+              )}
+            </a>
 
             <div class="a-issueCard__body">
               <div class="a-issueCard__meta">
                 <span class="a-issueCard__period">{it.period}</span>
               </div>
 
-              <h2 class="a-issueCard__title">{it.title}</h2>
+              <h2 class="a-issueCard__title">
+                <a href={it.href} style="text-decoration:none; color:inherit;" target={it.pdf ? "_blank" : undefined}>
+                  {it.title}
+                </a>
+              </h2>
+              {it.description && <p class="a-issueCard__deck">{it.description}</p>}
 
               <div class="a-issueCard__actions">
   {it.pdf ? (
-    <a class="a-btn" href={it.pdf} target="_blank" rel="noreferrer">Abrir PDF</a>
+    <a class="a-btn" href={it.pdf} target="_blank" rel="noreferrer">Abrir PDF / Impresión web</a>
   ) : null}
-
-  <a class="a-btn" href={`/issue/${it.id}`}>Ver número</a>
-
-
-                {showExport ? (
-                  <a class="a-btn" href={`/issue/${it.id}?print=1`}>Exportar PDF</a>
-                ) : null}
 
                 {it.buyUrl ? (
                   <a class="a-btn a-btn--primary" href={it.buyUrl} target="_blank" rel="noreferrer">
@@ -68,7 +91,7 @@ const issues = issuesRaw
               </div>
 
               <p class="a-issueCard__note">
-                Los artículos siguen disponibles en web. El PDF es la edición maquetada (colección).
+                El PDF es la edición maquetada para impresión (colección).
               </p>
             </div>
           </article>
@@ -84,36 +107,74 @@ const issues = issuesRaw
     .a-archive__title{ font-size: 48px; line-height: 1.02; margin: 6px 0 8px; }
     .a-archive__sub{ max-width: 56ch; opacity: .75; margin: 0; }
 
-    .a-issues{ display: grid; gap: 12px; margin-top: 26px; }
+    .a-issues{ display: grid; gap: 24px; margin-top: 26px; }
     .a-issueCard{
       display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 14px;
-      border: 1px solid rgba(0,0,0,.12);
-      padding: 12px;
-      background: rgba(255,255,255,.3);
+      grid-template-columns: 160px 1fr;
+      gap: 24px;
+      border: 1px solid rgba(0,0,0,.08);
+      padding: 24px;
+      background: #fff;
+      border-radius: 8px;
+      color: #111; /* Forzar texto oscuro sobre fondo blanco */
     }
     .a-issueCard__cover{
-      width: 140px; height: 86px; overflow: hidden;
+      width: 160px; aspect-ratio: 3/4; overflow: hidden;
       border: 1px solid rgba(0,0,0,.12);
-      background: rgba(0,0,0,.04);
+      background: #eee;
+      display: block;
+      text-decoration: none;
+      position: relative;
     }
     .a-issueCard__cover img{ width: 100%; height: 100%; object-fit: cover; display:block; }
-    .a-issueCard__meta{ display:flex; gap:10px; align-items:center; opacity:.75; font-size: 12px; }
-    .a-issueCard__title{ margin: 6px 0 8px; font-size: 18px; line-height: 1.2; }
-    .a-issueCard__actions{ display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 8px; }
+    
+    /* CSS Cover styles */
+    .css-cover {
+      width: 100%; height: 100%;
+      background: #fbfaf7;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: space-between;
+      padding: 10px;
+      text-align: center;
+      color: #111;
+    }
+    .css-cover__issue{ font-size: 10px; letter-spacing: 1px; font-weight: bold; }
+    .css-cover__title{ font-size: 10px; font-family: serif; letter-spacing: 1px; margin-bottom: 5px; }
+    .css-cover__circle {
+      width: 60px; height: 60px;
+      border: 1px solid #111;
+      border-radius: 50%;
+      position: relative;
+    }
+    .css-cover__line {
+      width: 1px; height: 100%; background: #111;
+      position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+    }
+
+    .a-issueCard__meta{ display:flex; gap:10px; align-items:center; opacity:.75; font-size: 12px; text-transform:uppercase; letter-spacing:.05em; }
+    .a-issueCard__title{ margin: 8px 0; font-size: 22px; line-height: 1.2; font-family: serif; }
+    .a-issueCard__deck{ margin: 0 0 12px; opacity: .8; font-size: 15px; line-height: 1.5; max-width: 60ch; }
+    .a-issueCard__actions{ display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 12px; margin-top: auto; }
     .a-btn{
       display:inline-flex; align-items:center; justify-content:center;
-      padding: 7px 10px; border: 1px solid rgba(0,0,0,.22);
+      padding: 8px 16px; border: 1px solid rgba(0,0,0,.4); /* Borde más visible */
       text-decoration:none; font-size: 13px;
+      color: #111; /* asegurar texto oscuro */
       background: rgba(255,255,255,.35);
+      border-radius: 4px;
+      transition: all .2s;
     }
-    .a-btn--primary{ background: rgba(0,0,0,.85); color: #fff; border-color: rgba(0,0,0,.85); }
-    .a-issueCard__note{ margin: 0; opacity:.68; font-size: 12px; max-width: 70ch; }
+    .a-btn:hover { background: #fff; transform: translateY(-1px); }
+    .a-btn--primary{ background: #111; color: #fff; border-color: #111; }
+    .a-btn--primary:hover{ background: #333; color: #fff; }
+    .a-issueCard__note{ margin: 0; opacity:.6; font-size: 12px; max-width: 70ch; }
 
     @media (max-width: 640px){
       .a-issueCard{ grid-template-columns: 1fr; }
-      .a-issueCard__cover{ width: 100%; height: 140px; }
+      .a-issueCard__cover{ width: 140px; margin: 0 auto; }
+      .a-issueCard__body{ text-align: center; }
+      .a-issueCard__actions{ justify-content: center; }
+      .a-issueCard__meta{ justify-content: center; }
     }
   </style>
 </Base>

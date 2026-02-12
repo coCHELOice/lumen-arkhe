@@ -40,22 +40,78 @@ const featuredItems = heroSource.map((e) => ({
   image: e.data.hero ?? heroBySlug(e.slug),
 }));
 
-// 4) "Artículos destacados": últimos 3
+// 4) "Artículos destacados": últimos 3 (con imágenes)
 const latest = published.slice(0, 3).map((e) => ({
   title: e.data.title,
   deck: e.data.deck ?? e.data.description ?? "",
   date: e.data.date.toISOString().slice(0, 10),
   href: `${prefix}/articulos/${e.slug}`,
   tag: e.data.tag ?? e.data.section,
+  image: e.data.hero ?? heroBySlug(e.slug),
 }));
+
+// PDF / Número actual (hardcoded o dinámico según prefieras, aquí uso el último issue si existe)
+// Para simplificar, usaremos un hardcoded example o intentaremos buscar un issue.
+const issuePromo = {
+  title: "Lumen Arkhé N°0", 
+  desc: "Edición de lanzamiento. Ensayos sobre política, técnica y vida pública.",
+  href: `${prefix}/print/issue-0`, 
+};
 
 // 5) Temas: de la data real (máx 8)
 const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).slice(0, 8);
+
+// 6) Serie destacada: detectar la serie con más artículos
+const seriesMap = new Map<string, typeof published>();
+for (const e of published) {
+  const parts = e.slug.split("-");
+  if (parts.length >= 3) {
+    // Try a prefix like "soberania-termica"
+    const candidate = parts.slice(0, 2).join("-");
+    const matching = published.filter(
+      (a) => a.slug.startsWith(candidate + "-") && !a.slug.endsWith("-indice")
+    );
+    if (matching.length >= 3 && !seriesMap.has(candidate)) {
+      seriesMap.set(candidate, matching);
+    }
+  }
+}
+let featuredSeries: { title: string; slug: string; count: number; href: string } | null = null;
+for (const [prefix_slug, arts] of seriesMap) {
+  // Find the index article for a nice title  
+  const indexArticle = published.find((e) => e.slug === prefix_slug + "-indice");
+  const seriesTitle = indexArticle?.data.title ?? arts[0].data.title.split(":")[0];
+  if (!featuredSeries || arts.length > featuredSeries.count) {
+    featuredSeries = {
+      title: seriesTitle,
+      slug: prefix_slug,
+      count: arts.length,
+      href: indexArticle ? `${prefix}/articulos/${indexArticle.slug}` : `${prefix}/articulos/${arts[0].slug}`,
+    };
+  }
+}
+
+// 7) Carrusel: últimos 8 (excluyendo los 3 destacados)
+const latestSlugs = new Set(heroSource.map((e) => e.slug));
+const carouselItems = published
+  .filter((e) => !latestSlugs.has(e.slug))
+  .slice(0, 8)
+  .map((e) => ({
+    slug: e.slug,
+    title: e.data.title,
+    section: e.data.section,
+    date: e.data.date.toISOString().slice(0, 10),
+    href: `${prefix}/articulos/${e.slug}`,
+    image: e.data.hero ?? heroBySlug(e.slug),
+  }));
 
 // Textos traducidos
 const tAbrir = lang === "es" ? "Abrir" : "Open";
 const tDestacado = t("hero.destacado", lang);
 const tDestacados = t("hero.destacados", lang);
+const tSerieEnCurso = lang === "es" ? "Serie en curso" : "Current series";
+const tCapitulos = lang === "es" ? "capítulos" : "chapters";
+const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
 ---
 
 <!-- Newsletter popup (cada 15 días) -->
@@ -75,7 +131,6 @@ const tDestacados = t("hero.destacados", lang);
     <h2 id="nlpop-title" class="nlpop__h">{t("nl.titulo", lang)}</h2>
     <p class="nlpop__p">{t("nl.desc", lang)}</p>
 
-    <!-- el iframe se inserta SOLO al abrir (mejor velocidad del Home) -->
     <div class="nlpop__frame" id="nlpopFrame" aria-label={t("nl.form_label", lang)}></div>
 
     <p class="nlpop__alt">
@@ -90,7 +145,7 @@ const tDestacados = t("hero.destacados", lang);
 <script is:inline>
   (() => {
     const KEY = "lumen_newsletter_popup_ts_v1";
-    const TTL_MS = 15 * 24 * 60 * 60 * 1000; // 15 días
+    const TTL_MS = 15 * 24 * 60 * 60 * 1000;
     const DELAY_MS = 900;
 
     const now = Date.now();
@@ -211,11 +266,9 @@ const tDestacados = t("hero.destacados", lang);
         const it = data[idx];
 
         if (animate) {
-          // Fade out
           root.classList.add("a-hero--fading");
           setTimeout(() => {
             updateContent(it);
-            // Fade in
             root.classList.remove("a-hero--fading");
           }, 350);
         } else {
@@ -280,27 +333,52 @@ const tDestacados = t("hero.destacados", lang);
   </script>
 </section>
 
+<!-- Serie destacada -->
+{featuredSeries && (
+  <section class="a-section">
+    <a class="a-featured-series" href={featuredSeries.href} style="text-decoration:none;">
+      <span class="a-featured-series__badge">{tSerieEnCurso}</span>
+      <div class="a-featured-series__info">
+        <div class="a-featured-series__title">{featuredSeries.title}</div>
+        <p class="a-featured-series__desc">{featuredSeries.count} {tCapitulos}</p>
+      </div>
+      <div class="a-featured-series__progress" title={`${featuredSeries.count} ${tCapitulos}`}>
+        <div class="a-featured-series__bar" style={`width: ${Math.min(100, (featuredSeries.count / 8) * 100)}%`}></div>
+      </div>
+    </a>
+  </section>
+)}
+
 <section class="a-section">
   <div class="a-section__row">
     <h2 class="a-section__h2">{t("home.articulos_destacados", lang)}</h2>
     <div class="a-section__rule" aria-hidden="true"></div>
   </div>
 
-  <ol class="a-list">
-    {latest.map((p) => (
-      <li class="a-li">
-        <a class="a-li__a" href={p.href}>
-          <div class="a-li__meta">
-            <span>{p.date}</span>
-            <span class="a-dot">•</span>
+  <ul class="a-feat-grid">
+    {latest.map((p, i) => (
+      <li class="a-feat-item">
+        <div class="a-feat-item__content">
+           <a class="a-feat-item__meta" href={p.href}>
             <span>{p.tag}</span>
-          </div>
-          <div class="a-li__t">{p.title}</div>
-          <div class="a-li__d">{p.deck}</div>
+            <span class="a-dot">•</span>
+            <span>{p.date}</span>
+          </a>
+          <a class="a-feat-item__title" href={p.href}>{p.title}</a>
+          <div class="a-feat-item__deck">{p.deck}</div>
+        </div>
+        <a class="a-feat-item__img" href={p.href} aria-hidden="true" tabindex="-1">
+          <img
+            src={p.image}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
+          />
         </a>
       </li>
     ))}
-  </ol>
+  </ul>
 
   <div class="a-topics">
     <span class="a-topics__t">{t("home.temas", lang)}</span>
@@ -312,3 +390,66 @@ const tDestacados = t("hero.destacados", lang);
     ))}
   </div>
 </section>
+
+<!-- Banner Suscríbete (CTA) -->
+<section class="a-section">
+  <div class="a-cta-subscribe">
+    <h3 class="a-cta-subscribe__h">{t("nl.titulo", lang)}</h3>
+    <p class="a-cta-subscribe__p">
+      {t("nl.desc", lang)}<br/>
+      {lang === "es" ? "Únete a nuestra comunidad de lectores." : "Join our community of readers."}
+    </p>
+    <a class="a-cta-btn" href="https://gregorioaugusto.substack.com/subscribe" target="_blank" rel="noreferrer">
+      <span>{lang === "es" ? "Suscribirse" : "Subscribe"}</span>
+      <span>→</span>
+    </a>
+  </div>
+</section>
+
+<!-- Promo Issue / PDF -->
+<section class="a-section">
+  <a class="a-issue-promo" href={issuePromo.href} target="_blank">
+    <div class="a-issue-promo__cover">
+       <div class="css-cover">
+          <div class="css-cover__issue">N°0</div>
+          <div class="css-cover__circle">
+            <div class="css-cover__line"></div>
+          </div>
+          <div class="css-cover__title">LUMEN ARKHÉ</div>
+       </div>
+    </div>
+    <div class="a-issue-promo__info">
+      <span class="a-issue-promo__label">{lang === "es" ? "NÚMERO ACTUAL" : "CURRENT ISSUE"}</span>
+      <h3 class="a-issue-promo__title">{issuePromo.title}</h3>
+      <p class="a-issue-promo__desc">{issuePromo.desc}</p>
+      <span class="a-issue-promo__cta">{t("pdf.ver_numero", lang)} →</span>
+    </div>
+  </a>
+</section>
+
+<!-- Carrusel horizontal: artículos recientes -->
+{carouselItems.length > 0 && (
+  <section class="a-section">
+    <div class="a-carousel">
+      <h2 class="a-carousel__h">{tRecientes}</h2>
+      <div class="a-carousel__track">
+        {carouselItems.map((item) => (
+          <a class="a-carousel__card" href={item.href}>
+            <img
+              class="a-carousel__thumb"
+              src={item.image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
+            />
+            <div class="a-carousel__body">
+              <div class="a-carousel__card-title">{item.title}</div>
+              <div class="a-carousel__card-meta">{item.section} • {item.date}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

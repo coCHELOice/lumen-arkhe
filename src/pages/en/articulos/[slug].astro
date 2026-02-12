@@ -3,17 +3,14 @@ import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 import { t } from "../../../i18n";
 
-// 1) Traemos todos los artículos una sola vez
 const entries = await getCollection("articulos");
 
-// 2) Generamos páginas SOLO para los que no son borrador
 export async function getStaticPaths() {
   const entries = await getCollection("articulos");
   const published = entries.filter((e) => !e.data.draft);
   return published.map((e) => ({ params: { slug: e.slug } }));
 }
 
-// 3) Resolvemos el artículo actual por slug
 const { slug } = Astro.params;
 const entry = entries.find((e) => e.slug === slug);
 if (!entry) throw new Error(t("artd.no_encontrado", "en"));
@@ -21,10 +18,12 @@ const { Content } = await entry.render();
 
 const siteTitle = "Lumen Arkhé";
 const title = entry.data.title;
-const deck = String(entry.data.deck ?? entry.data.description ?? entry.data.excerpt ?? "");
+const deck = String(entry.data.deck ?? entry.data.description ?? "");
 const section = entry.data.section ?? "";
 const author = entry.data.author ?? "";
-const date = entry.data.date ? entry.data.date.toLocaleDateString("en-US") : "";
+const dateObj = entry.data.date;
+const date = dateObj ? dateObj.toLocaleDateString("en-US") : "";
+const isoDate = dateObj ? dateObj.toISOString() : "";
 const workTitle = String(entry.data.workTitle ?? "");
 const workAuthor = String(entry.data.workAuthor ?? "");
 const workYear = String(entry.data.workYear ?? "");
@@ -40,12 +39,10 @@ const chronicleDateText = (() => {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US");
 })();
 
-// Reading time (~220 words/min)
 const body = entry.body ?? "";
 const wordCount = body.split(/\s+/).filter(Boolean).length;
 const readingTime = Math.max(1, Math.round(wordCount / 220));
 
-// Related articles
 const temas: string[] = (entry.data as any).temas ?? [];
 const published = entries.filter((e) => !e.data.draft && e.slug !== slug);
 const related = published
@@ -61,11 +58,48 @@ const related = published
   .slice(0, 3)
   .map((r) => r.entry);
 
+// Series navigation
+const slugParts = slug.split("-");
+const seriesPrefix = slugParts.length > 2 ? slugParts.slice(0, -1).join("-") : null;
+let seriesPrev: typeof entry | null = null;
+let seriesNext: typeof entry | null = null;
+
+if (seriesPrefix) {
+  const allSeries = entries
+    .filter((e) => !e.data.draft && e.slug.startsWith(seriesPrefix.split("-").slice(0, 2).join("-")))
+    .filter((e) => !e.slug.endsWith("-indice"))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+  const idx = allSeries.findIndex((e) => e.slug === slug);
+  if (idx > 0) seriesPrev = allSeries[idx - 1];
+  if (idx >= 0 && idx < allSeries.length - 1) seriesNext = allSeries[idx + 1];
+}
+
 const articleUrl = `https://lumenarkhe.com/en/articulos/${slug}`;
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: title,
+  description: deck,
+  author: { "@type": "Person", name: author || "Lumen Arkhé" },
+  publisher: { "@type": "Organization", name: "Lumen Arkhé" },
+  datePublished: isoDate,
+  url: articleUrl,
+  wordCount: wordCount,
+  articleSection: section,
+  inLanguage: "en",
+});
 ---
 
 <Base title={`${title} — ${siteTitle}`} description={deck}>
+  <script type="application/ld+json" set:html={jsonLd} />
+
   <div class="a-progress" id="scrollProgress"></div>
+
+  <nav class="a-toc" id="articleToc" aria-label="Contents">
+    <div class="a-toc__title">Contents</div>
+    <ul class="a-toc__list" id="tocList"></ul>
+  </nav>
 
   <article class="a-article">
       <div class="a-article__meta">
@@ -74,6 +108,9 @@ const articleUrl = `https://lumenarkhe.com/en/articulos/${slug}`;
         {author ? <><span class="a-dot">•</span><span>{author}</span></> : null}
         <span class="a-dot">•</span>
         <span class="a-reading-time">~{readingTime} min</span>
+        <span class="a-dot">•</span>
+        <button class="a-zen-btn" id="zenToggle" type="button">📖 Zen</button>
+        <button class="a-bookmark" id="bookmarkBtn" type="button" data-slug={slug} title="Save for later">🔖</button>
       </div>
 
       <figure class="a-article__hero">
@@ -108,17 +145,33 @@ const articleUrl = `https://lumenarkhe.com/en/articulos/${slug}`;
   </div>
 ) : null}
 
-
-      <div class="a-prose">
+      <div class="a-prose" id="proseContent">
         <Content />
       </div>
 
       <div class="a-share">
         <span class="a-share__label">Share</span>
-        <a class="a-share__btn" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="Share on X" aria-label="Share on X">𝕏</a>
-        <a class="a-share__btn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="Share on LinkedIn" aria-label="Share on LinkedIn">in</a>
+        <a class="a-share__btn" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="X" aria-label="Share on X">𝕏</a>
+        <a class="a-share__btn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="LinkedIn" aria-label="LinkedIn">in</a>
         <button class="a-share__btn" id="copyLink" type="button" title="Copy link" aria-label="Copy link">🔗</button>
       </div>
+
+      {(seriesPrev || seriesNext) && (
+        <nav class="a-series-nav" aria-label="Series navigation">
+          {seriesPrev ? (
+            <a class="a-series-nav__link" href={`/en/articulos/${seriesPrev.slug}`}>
+              <div class="a-series-nav__label">← Previous</div>
+              <div class="a-series-nav__title">{seriesPrev.data.title}</div>
+            </a>
+          ) : <div></div>}
+          {seriesNext ? (
+            <a class="a-series-nav__link a-series-nav__link--next" href={`/en/articulos/${seriesNext.slug}`}>
+              <div class="a-series-nav__label">Next →</div>
+              <div class="a-series-nav__title">{seriesNext.data.title}</div>
+            </a>
+          ) : null}
+        </nav>
+      )}
 
       {related.length > 0 && (
         <div class="a-related">
@@ -154,6 +207,86 @@ const articleUrl = `https://lumenarkhe.com/en/articulos/${slug}`;
         navigator.clipboard.writeText(window.location.href).then(function(){
           btn.textContent = '✓';
           setTimeout(function(){ btn.textContent = '🔗'; }, 1500);
+        });
+      });
+    })();
+    (function(){
+      var prose = document.getElementById('proseContent');
+      var list = document.getElementById('tocList');
+      var toc = document.getElementById('articleToc');
+      if (!prose || !list || !toc) return;
+      var headings = prose.querySelectorAll('h2');
+      if (headings.length < 2) return;
+      headings.forEach(function(h, i){
+        if (!h.id) h.id = 'sec-' + i;
+        var li = document.createElement('li');
+        li.className = 'a-toc__item';
+        li.innerHTML = '<a href="#' + h.id + '">' + h.textContent + '</a>';
+        list.appendChild(li);
+      });
+      toc.classList.add('is-visible');
+      var items = list.querySelectorAll('.a-toc__item');
+      var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) {
+            var id = e.target.id;
+            items.forEach(function(li){
+              var a = li.querySelector('a');
+              li.classList.toggle('is-active', a && a.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      headings.forEach(function(h){ observer.observe(h); });
+    })();
+    (function(){
+      var btn = document.getElementById('zenToggle');
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        document.documentElement.classList.toggle('zen-mode');
+        var isZen = document.documentElement.classList.contains('zen-mode');
+        btn.textContent = isZen ? '✕ Exit' : '📖 Zen';
+      });
+    })();
+    (function(){
+      var btn = document.getElementById('bookmarkBtn');
+      if (!btn) return;
+      var slug = btn.getAttribute('data-slug');
+      var KEY = 'lumen_bookmarks';
+      function getBookmarks(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
+      function save(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+      var bm = getBookmarks();
+      if (bm.some(function(b){ return b.slug === slug; })) btn.classList.add('is-saved');
+      btn.addEventListener('click', function(){
+        var bm = getBookmarks();
+        var idx = bm.findIndex(function(b){ return b.slug === slug; });
+        if (idx >= 0) {
+          bm.splice(idx, 1);
+          btn.classList.remove('is-saved');
+        } else {
+          bm.push({ slug: slug, title: document.querySelector('.a-article__h1')?.textContent || '', saved: Date.now() });
+          btn.classList.add('is-saved');
+        }
+        save(bm);
+      });
+    })();
+    (function(){
+      document.querySelectorAll('.a-prose a[href^="#fn"]').forEach(function(a){
+        a.classList.add('footnote-ref');
+        a.addEventListener('mouseenter', function(e){
+          var href = a.getAttribute('href');
+          var target = href ? document.querySelector(href) : null;
+          if (!target) return;
+          var tip = document.createElement('div');
+          tip.className = 'a-footnote-tip';
+          tip.textContent = target.textContent?.replace(/↩.*$/, '').trim() || '';
+          tip.style.top = (e.pageY - 50) + 'px';
+          tip.style.left = Math.min(e.pageX, window.innerWidth - 340) + 'px';
+          document.body.appendChild(tip);
+          a._tip = tip;
+        });
+        a.addEventListener('mouseleave', function(){
+          if (a._tip) { a._tip.remove(); a._tip = null; }
         });
       });
     })();

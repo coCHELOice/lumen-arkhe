@@ -13,7 +13,7 @@ const ui = {
     "nav.archivo": { es: "Archivo PDF", en: "PDF Archive" },
     "nav.newsletter": { es: "Newsletter", en: "Newsletter" },
     "nav.busqueda": { es: "Búsqueda", en: "Search" },
-    "nav.ingresa": { es: "Ingresa", en: "Sign In" },
+    "nav.ingresa": { es: "Suscríbete", en: "Subscribe" },
     "nav.abrir_menu": { es: "Abrir menú", en: "Open menu" },
 
     /* ── Hero / Home ──────────────────────────── */

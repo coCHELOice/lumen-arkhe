@@ -1,0 +1,83 @@
+---
+import { getLangFromUrl } from "../i18n";
+const lang = getLangFromUrl(Astro.url);
+---
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Lumen Arkhé - Print Edition</title>
+    <!-- Fuentes clásicas para lectura en papel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style is:global>
+      /* Reset básico para impresión */
+      *, *::before, *::after { box-sizing: border-box; }
+      body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      /* Configuraciones de Paged Media */
+      @page {
+        size: A4;
+        margin: 2cm;
+        @bottom-center {
+          content: counter(page);
+          font-family: 'Playfair Display', serif;
+          font-size: 10pt;
+        }
+      }
+
+      /* Portada sin número de página */
+      @page:first {
+        margin: 0;
+        @bottom-center { content: none; }
+      }
+
+      /* Estilos generales */
+      :root {
+        --font-serif: 'Lora', serif;
+        --font-display: 'Playfair Display', serif;
+        --ink: #111;
+        --paper: #fff;
+      }
+
+      body {
+        font-family: var(--font-serif);
+        font-size: 11pt;
+        line-height: 1.5;
+        color: var(--ink);
+        background: var(--paper);
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Tipografía */
+      h1, h2, h3, h4 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 0;
+      }
+
+      p {
+        margin-bottom: 0.8em;
+        text-align: justify;
+        hyphens: auto; /* Silabeó automático para justificación */
+      }
+
+      /* Elementos de revista */
+      .print-container {
+        max-width: 100%;
+        margin: 0 auto;
+      }
+      
+      /* Utilidades de salto de página */
+      .page-break { page-break-before: always; }
+      .no-break { page-break-inside: avoid; }
+
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
