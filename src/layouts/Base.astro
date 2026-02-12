@@ -22,7 +22,10 @@ const year = new Date().getFullYear();
     {description ? <meta property="og:description" content={description} /> : null}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Lumen Arkhé" />
-    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="theme-color" content="#fbfaf7" id="meta-theme" />
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="Lumen Arkhé RSS" href="/rss.xml" />
 
     <!-- Google Fonts: Inter + Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,6 +36,18 @@ const year = new Date().getFullYear();
     />
 
     <link rel="stylesheet" href="/styles/atomo.css" />
+
+    <!-- Dark mode: restore preference before paint -->
+    <script is:inline>
+      (function(){
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          var m = document.getElementById('meta-theme');
+          if (m) m.content = '#0f1117';
+        }
+      })();
+    </script>
   </head>
 
   <body>
@@ -69,5 +84,42 @@ const year = new Date().getFullYear();
         <div class="a-foot__copy">© {year} Lumen Arkhé. {t("foot.derechos", lang)}</div>
       </footer>
     </div>
+
+    <!-- Back to top -->
+    <button class="a-backtop" id="backtop" aria-label="Volver arriba" title="↑">↑</button>
+
+    <!-- Global scripts -->
+    <script is:inline>
+      // Back to top
+      (function(){
+        var btn = document.getElementById('backtop');
+        if (!btn) return;
+        window.addEventListener('scroll', function(){
+          btn.classList.toggle('is-visible', window.scrollY > 400);
+        }, {passive: true});
+        btn.addEventListener('click', function(){
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+      })();
+
+      // Dark mode toggle
+      (function(){
+        var btn = document.getElementById('themeToggle');
+        if (!btn) return;
+        function setTheme(dark) {
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+          localStorage.setItem('theme', dark ? 'dark' : 'light');
+          btn.textContent = dark ? '☀️' : '🌙';
+          var m = document.getElementById('meta-theme');
+          if (m) m.content = dark ? '#0f1117' : '#fbfaf7';
+        }
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        btn.textContent = isDark ? '☀️' : '🌙';
+        btn.addEventListener('click', function(){
+          var cur = document.documentElement.getAttribute('data-theme') === 'dark';
+          setTheme(!cur);
+        });
+      })();
+    </script>
   </body>
 </html>

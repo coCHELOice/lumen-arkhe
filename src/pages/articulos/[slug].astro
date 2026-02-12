@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const entry = entries.find((e) => e.slug === slug);
 if (!entry) throw new Error("Artículo no encontrado");
-const { Content } = await entry.render();
+const { Content, remarkPluginFrontmatter } = await entry.render();
 
 const siteTitle = "Lumen Arkhé";
 const title = entry.data.title;
@@ -39,19 +39,44 @@ const chronicleDateText = (() => {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("es-CL");
 })();
 
-// 4) Deck compatible (nuevo: deck / viejo: description)
+// Tiempo de lectura estimado (~220 palabras/min)
+const body = entry.body ?? "";
+const wordCount = body.split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.round(wordCount / 220));
 
+// Artículos relacionados (mismo tema o sección, excluir actual)
+const temas: string[] = (entry.data as any).temas ?? [];
+const published = entries.filter((e) => !e.data.draft && e.slug !== slug);
+const related = published
+  .map((e) => {
+    let score = 0;
+    if (e.data.section === section) score += 1;
+    const eTemas: string[] = (e.data as any).temas ?? [];
+    for (const t of temas) { if (eTemas.includes(t)) score += 2; }
+    return { entry: e, score };
+  })
+  .filter((r) => r.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((r) => r.entry);
+
+const articleUrl = `https://lumenarkhe.com/articulos/${slug}`;
 ---
 
 <Base title={`${title} — ${siteTitle}`} description={deck}>
+  <!-- Scroll progress bar -->
+  <div class="a-progress" id="scrollProgress"></div>
+
   <article class="a-article">
       <div class="a-article__meta">
         {section ? <span>{section}</span> : null}
         {date ? <><span class="a-dot">•</span><span>{date}</span></> : null}
         {author ? <><span class="a-dot">•</span><span>{author}</span></> : null}
+        <span class="a-dot">•</span>
+        <span class="a-reading-time">~{readingTime} min</span>
       </div>
 
-      {/* Hero opcional en artículo: si existe /images/hero/{slug}.jpg o data.hero */}
+      {/* Hero opcional en artículo */}
       <figure class="a-article__hero">
         <img
           src={(entry.data.hero ?? `/images/hero/${entry.slug}.jpg`)}
@@ -88,5 +113,56 @@ const chronicleDateText = (() => {
       <div class="a-prose">
         <Content />
       </div>
+
+      <!-- Share -->
+      <div class="a-share">
+        <span class="a-share__label">Compartir</span>
+        <a class="a-share__btn" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="Compartir en X" aria-label="Compartir en X">𝕏</a>
+        <a class="a-share__btn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`} target="_blank" rel="noreferrer" title="Compartir en LinkedIn" aria-label="Compartir en LinkedIn">in</a>
+        <button class="a-share__btn" id="copyLink" type="button" title="Copiar enlace" aria-label="Copiar enlace">🔗</button>
+      </div>
+
+      <!-- Related articles -->
+      {related.length > 0 && (
+        <div class="a-related">
+          <h2 class="a-related__h">Artículos relacionados</h2>
+          <div class="a-related__grid">
+            {related.map((r) => (
+              <a class="a-related__card" href={`/articulos/${r.slug}`}>
+                <div class="a-related__card-title">{r.data.title}</div>
+                <div class="a-related__card-meta">
+                  {r.data.section}
+                  {r.data.date ? ` • ${r.data.date.toLocaleDateString("es-CL")}` : ""}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
+
+  <!-- Scroll progress + copy link scripts -->
+  <script is:inline>
+    // Scroll progress
+    (function(){
+      var bar = document.getElementById('scrollProgress');
+      if (!bar) return;
+      window.addEventListener('scroll', function(){
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = h > 0 ? (window.scrollY / h * 100) + '%' : '0%';
+      }, {passive: true});
+    })();
+
+    // Copy link
+    (function(){
+      var btn = document.getElementById('copyLink');
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        navigator.clipboard.writeText(window.location.href).then(function(){
+          btn.textContent = '✓';
+          setTimeout(function(){ btn.textContent = '🔗'; }, 1500);
+        });
+      });
+    })();
+  </script>
 </Base>

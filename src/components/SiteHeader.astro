@@ -30,6 +30,7 @@ const enPath = switchLangPath(Astro.url.pathname, "en");
     </div>
 
     <div style="display:flex; align-items:center; gap:8px; justify-self:end;">
+      <button class="a-theme-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Modo oscuro">🌙</button>
       <a class="a-ingresa" href="#">{t("nav.ingresa", lang).toUpperCase()}</a>
       <button class="a-burger" id="menuBurger" type="button" aria-label={t("nav.abrir_menu", lang)} aria-expanded="false">
         <span id="burgerIcon">☰</span>
