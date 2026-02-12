@@ -261,6 +261,14 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
       const imgLink = root.querySelector(".a-hero__img");
       const img = root.querySelector(".a-hero__img img");
       const dots = Array.from(root.querySelectorAll('#heroDots button[data-i]'));
+      
+      // Precarga de imágenes para evitar pestañeos (flicker)
+      data.forEach(item => {
+        if (item.image) {
+          const preload = new Image();
+          preload.src = item.image;
+        }
+      });
 
       let idx = 0;
 

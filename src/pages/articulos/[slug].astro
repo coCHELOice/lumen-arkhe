@@ -116,31 +116,44 @@ const jsonLd = JSON.stringify({
     <ul class="a-toc__list" id="tocList"></ul>
   </nav>
 
-  <article class="a-article">
-      <div class="a-article__meta">
+  <!-- Hero Cinemático -->
+  <header class="a-article-hero-cine">
+    <div class="a-article-hero-cine__img">
+      <img
+        src={(entry.data.hero ?? `/images/hero/${entry.slug}.jpg`)}
+        alt=""
+        loading="eager"
+        decoding="async"
+        onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
+      />
+    </div>
+    <div class="a-article-hero-cine__overlay"></div>
+    
+    <div class="a-article-hero-cine__content">
+      <div class="a-article-hero-cine__meta">
         {section ? <span>{section}</span> : null}
         {date ? <><span class="a-dot">•</span><span>{date}</span></> : null}
-        {author ? <><span class="a-dot">•</span><span>{author}</span></> : null}
         <span class="a-dot">•</span>
-        <span class="a-reading-time">~{readingTime} min</span>
-        <span class="a-dot">•</span>
-        <button class="a-zen-btn" id="zenToggle" type="button">📖 Zen</button>
-        <button class="a-bookmark" id="bookmarkBtn" type="button" data-slug={slug} title="Guardar para leer después">🔖</button>
+        <span>~{readingTime} min</span>
       </div>
 
-      <figure class="a-article__hero">
-        <img
-          src={(entry.data.hero ?? `/images/hero/${entry.slug}.jpg`)}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
-        />
-      </figure>
-
-      <h1 class="a-article__h1">{title}</h1>
-      {deck ? <p class="a-article__deck">{deck}</p> : null}
+      <h1 class="a-article-hero-cine__h1">{title}</h1>
       
+      {deck ? <p class="a-article-hero-cine__deck">{deck}</p> : null}
+
+      <div class="a-article__meta" style="justify-content: center; margin-top: 24px; color: rgba(255,255,255,0.8);">
+        {author ? <span>Por <strong>{author}</strong></span> : null}
+        <span class="a-dot">•</span>
+        <button class="a-zen-btn" id="zenToggle" type="button" style="border-color: rgba(255,255,255,0.3); color: white;">📖 Zen</button>
+        <button class="a-bookmark" id="bookmarkBtn" type="button" data-slug={slug} title="Guardar" style="color: white;">🔖</button>
+      </div>
+    </div>
+  </header>
+
+  <article class="a-article">
+      <!-- El título y deck ya están en el hero, así que los quitamos de aquí -->
+
+
 {section === "Reseñas" && (workTitle || workAuthor || workYear || workUrl) ? (
   <div class="a-article__meta">
     <span>Obra</span>
