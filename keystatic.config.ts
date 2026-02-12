@@ -1,4 +1,4 @@
-import { config, fields, collection } from '@keystatic/core';
+import { config, fields, collection, singleton } from '@keystatic/core';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -11,10 +11,33 @@ export default config({
 
   ui: {
     brand: { name: 'Lumen Arkhé' },
-    // Menú simple: lo mismo que maneja el sitio
+    // Menú simple
     navigation: {
-      Contenido: ['articulos', 'issues'],
+      'Sitio': ['settings'],
+      'Contenido': ['articulos', 'issues', 'documentos'],
     },
+  },
+
+  singletons: {
+    settings: singleton({
+      label: 'Configuración Global',
+      path: 'src/content/settings/global',
+      format: { data: 'json' },
+      schema: {
+        // Identidad / SEO
+        siteTitle: fields.text({ label: 'Nombre del Sitio', validation: { isRequired: true } }),
+        siteDescription: fields.text({ label: 'Descripción SEO (Global)', multiline: true }),
+
+        // Redes Sociales
+        twitterUrl: fields.text({ label: 'Twitter URL' }), // text permite vacíos más fácil que url a veces
+        instagramUrl: fields.text({ label: 'Instagram URL' }),
+        substackUrl: fields.text({ label: 'Substack URL' }),
+
+        // Newsletter Banner
+        newsletterTitle: fields.text({ label: 'Newsletter: Título' }),
+        newsletterText: fields.text({ label: 'Newsletter: Texto', multiline: true }),
+      },
+    }),
   },
 
   collections: {
@@ -134,22 +157,52 @@ export default config({
 
         period: fields.text({ label: 'Periodo (opcional)' }),
 
-        // ✅ MODO SEGURO: portada como ruta/URL
-        // Ej: /images/issues/portada.jpg
-        cover: fields.text({
-          label: 'Portada — ruta o URL (ej: /images/issues/portada.jpg)',
+        // ✅ Imagen de portada: subida directa
+        cover: fields.image({
+          label: 'Portada del número',
+          directory: 'public/images/issues',
+          publicPath: '/images/issues/',
+          validation: { isRequired: false },
         }),
 
-        // ✅ MODO SEGURO: PDF como ruta/URL
-        // Ej: /issues/atomo-11.pdf
-        pdf: fields.text({
-          label: 'PDF (opcional) — ruta o URL (ej: /issues/atomo-11.pdf)',
+        // ✅ Archivo PDF: subida directa
+        pdf: fields.file({
+          label: 'Archivo PDF (opcional)',
+          directory: 'public/pdfs',
+          publicPath: '/pdfs/',
+          validation: { isRequired: false },
         }),
 
-        buyUrl: fields.url({ label: 'Link compra (opcional)' }),
+        buyUrl: fields.url({ label: 'Link compra / impreso (opcional)' }),
+
+        description: fields.text({
+          label: 'Descripción corta',
+          multiline: true,
+        }),
 
         articleSlugs: fields.array(fields.text({ label: 'Slug de artículo' }), {
           label: 'Artículos incluidos (slugs)',
+        }),
+      },
+    }),
+
+    // Colección de Documentos Adicionales (Papers, Informes, etc.)
+    documentos: collection({
+      label: 'Otros Documentos',
+      path: 'src/content/documentos/*',
+      format: { data: 'json' },
+      slugField: 'slug',
+      schema: {
+        title: fields.text({ label: 'Título', validation: { isRequired: true } }),
+        slug: fields.text({ label: 'Slug', validation: { isRequired: true } }),
+        date: fields.date({ label: 'Fecha', validation: { isRequired: true } }),
+        author: fields.text({ label: 'Autor / Entidad (opcional)' }),
+        description: fields.text({ label: 'Descripción', multiline: true }),
+        file: fields.file({
+          label: 'Archivo PDF',
+          directory: 'public/docs',
+          publicPath: '/docs/',
+          validation: { isRequired: true },
         }),
       },
     }),

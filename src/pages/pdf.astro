@@ -36,6 +36,10 @@ if (!issues.find(i => i.title.includes("N°0"))) {
   });
 }
 
+const docsRaw = await getCollection("documentos").catch(() => []);
+const docs = docsRaw.sort((a,b) => time(b.data.date) - time(a.data.date));
+
+
 ---
 
 <Base title={`PDF — ${siteTitle}`} description="Números semestrales listos para imprimir / vender.">
@@ -98,9 +102,57 @@ if (!issues.find(i => i.title.includes("N°0"))) {
         ))
       )}
     </section>
+
+    {/* Sección de Documentos Adicionales */}
+    {docs.length > 0 && (
+      <section class="a-docs-section">
+        <h2 class="a-archive__title" style="font-size: 32px; margin-top: 60px;">Documentos</h2>
+        <div class="a-docs-grid">
+          {docs.map((d) => (
+            <a class="a-doc-card" href={d.data.file} target="_blank" rel="noreferrer">
+               <div class="a-doc-card__icon">PDF</div>
+               <div class="a-doc-card__main">
+                  <h3 class="a-doc-card__title">{d.data.title}</h3>
+                  <div class="a-doc-card__meta">
+                    {d.data.date.toLocaleDateString("es-ES", {year:'numeric', month:'long'})}
+                    {d.data.author && ` • ${d.data.author}`}
+                  </div>
+                  {d.data.description && <p class="a-doc-card__desc">{d.data.description}</p>}
+               </div>
+               <div class="a-doc-card__arrow">→</div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
 
   <style>
+    /* ... (estilos anteriores) ... */
+    
+    /* Estilos nuevos docs */
+    .a-docs-grid { display: grid; gap: 16px; margin-top: 24px; }
+    .a-doc-card {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 8px;
+      text-decoration: none;
+      color: #111;
+      transition: all .2s;
+    }
+    .a-doc-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+    .a-doc-card__icon {
+      font-size: 10px; font-weight: bold; background: #eee; padding: 4px 6px; border-radius: 4px;
+    }
+    .a-doc-card__main { flex: 1; }
+    .a-doc-card__title { font-size: 18px; margin: 0 0 4px; font-family: var(--serif); line-height:1.2; }
+    .a-doc-card__meta { font-size: 12px; opacity: .6; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .a-doc-card__desc { font-size: 14px; opacity: .75; margin: 0; max-width: 65ch; }
+    .a-doc-card__arrow { opacity: .4; font-size: 20px; }
+
+    /* ... */
     .a-wrap{ max-width: 980px; margin: 0 auto; padding: 48px 18px; }
     .a-archive__head{ margin-bottom: 22px; }
     .a-kicker{ letter-spacing: .18em; font-size: 11px; opacity: .7; }

@@ -2,7 +2,9 @@
 import { getCollection } from "astro:content";
 import { getLangFromUrl, langPrefix, t } from "../i18n";
 import type { Lang } from "../i18n";
+import { getSiteSettings } from "../utils/settings";
 
+const settings = await getSiteSettings();
 const lang: Lang = getLangFromUrl(Astro.url);
 const prefix = langPrefix(lang);
 const siteTitle = "Lumen Arkhé";
@@ -394,12 +396,11 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
 <!-- Banner Suscríbete (CTA) -->
 <section class="a-section">
   <div class="a-cta-subscribe">
-    <h3 class="a-cta-subscribe__h">{t("nl.titulo", lang)}</h3>
-    <p class="a-cta-subscribe__p">
-      {t("nl.desc", lang)}<br/>
-      {lang === "es" ? "Únete a nuestra comunidad de lectores." : "Join our community of readers."}
+    <h3 class="a-cta-subscribe__h">{settings.newsletterTitle}</h3>
+    <p class="a-cta-subscribe__p" style="white-space: pre-wrap;">
+      {settings.newsletterText}
     </p>
-    <a class="a-cta-btn" href="https://gregorioaugusto.substack.com/subscribe" target="_blank" rel="noreferrer">
+    <a class="a-cta-btn" href={settings.substackUrl} target="_blank" rel="noreferrer">
       <span>{lang === "es" ? "Suscribirse" : "Subscribe"}</span>
       <span>→</span>
     </a>

@@ -2,8 +2,10 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import { getLangFromUrl, langPrefix, t } from "../i18n";
 import type { Lang } from "../i18n";
+import { getSiteSettings } from "../utils/settings";
 
-const { title = "Lumen Arkhé", description = "" } = Astro.props;
+const settings = await getSiteSettings();
+const { title = settings.siteTitle, description = settings.siteDescription } = Astro.props;
 const lang: Lang = getLangFromUrl(Astro.url);
 const prefix = langPrefix(lang);
 const year = new Date().getFullYear();
@@ -15,13 +17,13 @@ const year = new Date().getFullYear();
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    {description ? <meta name="description" content={description} /> : null}
+    <meta name="description" content={description} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
-    {description ? <meta property="og:description" content={description} /> : null}
+    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Lumen Arkhé" />
+    <meta property="og:site_name" content={settings.siteTitle} />
     <meta name="theme-color" content="#fbfaf7" id="meta-theme" />
     
     <!-- Favicon -->

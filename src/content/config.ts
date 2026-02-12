@@ -49,9 +49,35 @@ const issues = defineCollection({
   }),
 });
 
+const documentos = defineCollection({
+  type: "data", // JSON
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    author: z.string().optional(),
+    description: z.string().optional(),
+    file: z.string(), // path al archivo
+  }),
+});
+
+const settings = defineCollection({
+  type: "data",
+  schema: z.object({
+    siteTitle: z.string(),
+    siteDescription: z.string().optional(),
+    twitterUrl: z.string().url().optional().or(z.literal("")),
+    instagramUrl: z.string().url().optional().or(z.literal("")),
+    substackUrl: z.string().url().optional().or(z.literal("")),
+    newsletterTitle: z.string().optional(),
+    newsletterText: z.string().optional(),
+  }),
+});
+
 export const collections = {
   articulos,
   issues,
+  documentos,
+  settings,
 };
 
 
