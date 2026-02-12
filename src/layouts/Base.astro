@@ -123,21 +123,30 @@ const year = new Date().getFullYear();
           var btn = document.getElementById('themeToggle');
           if (!btn) return;
           
-          function setTheme(dark) {
-            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-            localStorage.setItem('theme', dark ? 'dark' : 'light');
-            btn.textContent = dark ? '☀️' : '🌙';
-            var m = document.getElementById('meta-theme');
-            if (m) m.content = dark ? '#0f1117' : '#fbfaf7';
+          function getCurrentTheme() {
+            return document.documentElement.getAttribute('data-theme') || 'dark';
           }
           
-          // Sincronizar estado inicial: si data-theme es light, es light. Si no, es dark.
-          var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-          btn.textContent = isDark ? '☀️' : '🌙';
+          function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            // El ícono muestra lo que PASARÁ al hacer click:
+            // Si estamos en dark, mostramos ☀️ (cambiar a light)
+            // Si estamos en light, mostramos 🌙 (cambiar a dark)
+            btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            btn.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+            var m = document.getElementById('meta-theme');
+            if (m) m.content = theme === 'dark' ? '#0f1117' : '#fbfaf7';
+          }
+          
+          // Sincronizar estado inicial
+          var currentTheme = getCurrentTheme();
+          setTheme(currentTheme);
           
           btn.onclick = function(){
-            var currentIsDark = document.documentElement.getAttribute('data-theme') !== 'light';
-            setTheme(!currentIsDark);
+            var current = getCurrentTheme();
+            var newTheme = current === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
           };
         })();
       }

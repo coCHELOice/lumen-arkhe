@@ -304,12 +304,20 @@ img.no-bw {
   font-size: 16px;
   cursor: pointer;
   line-height: 1;
-  transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+  transition: all var(--t-fast) var(--ease);
   color: var(--ink);
+  position: relative;
+  overflow: hidden;
 }
 
 .a-theme-btn:hover {
   background: var(--hover);
+  transform: scale(1.05);
+  border-color: var(--accent);
+}
+
+.a-theme-btn:active {
+  transform: scale(0.95);
 }
 
 .a-dot {
