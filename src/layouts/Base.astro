@@ -44,11 +44,17 @@ const year = new Date().getFullYear();
 
     <link rel="stylesheet" href="/styles/atomo.css" />
 
-    <!-- Dark mode: restore preference before paint -->
+    <!-- Dark mode: restore preference before paint (DARK DEFAULT) -->
     <script is:inline>
       (function(){
         var t = localStorage.getItem('theme');
-        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // Solo si el usuario pidió explícitamente light, lo activamos. Si no, es dark.
+        if (t === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+          var m = document.getElementById('meta-theme');
+          if (m) m.content = '#fbfaf7';
+        } else {
+          // Default: Dark
           document.documentElement.setAttribute('data-theme', 'dark');
           var m = document.getElementById('meta-theme');
           if (m) m.content = '#0f1117';
@@ -103,9 +109,6 @@ const year = new Date().getFullYear();
           var btn = document.getElementById('backtop');
           if (!btn) return;
           
-          // Eliminar listeners previos para evitar duplicados si la función se llama varias veces (aunque con astro:page-load suele estar bien)
-          // Mejor usamos una función nombrada para el scroll si quisiéramos removerla, pero en navegación simple basta con reinicializar el elemento si cambió.
-          
           window.addEventListener('scroll', function(){
             btn.classList.toggle('is-visible', window.scrollY > 400);
           }, {passive: true});
@@ -115,7 +118,7 @@ const year = new Date().getFullYear();
           };
         })();
 
-        // Dark mode toggle
+        // Dark mode toggle (DARK DEFAULT)
         (function(){
           var btn = document.getElementById('themeToggle');
           if (!btn) return;
@@ -128,13 +131,13 @@ const year = new Date().getFullYear();
             if (m) m.content = dark ? '#0f1117' : '#fbfaf7';
           }
           
-          // Sincronizar estado inicial al cargar la página
-          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          // Sincronizar estado inicial: si data-theme es light, es light. Si no, es dark.
+          var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
           btn.textContent = isDark ? '☀️' : '🌙';
           
           btn.onclick = function(){
-            var cur = document.documentElement.getAttribute('data-theme') === 'dark';
-            setTheme(!cur);
+            var currentIsDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            setTheme(!currentIsDark);
           };
         })();
       }

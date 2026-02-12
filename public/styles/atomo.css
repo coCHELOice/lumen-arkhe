@@ -3,60 +3,16 @@
    Modo oscuro · Imágenes a color · Micro-animaciones
    ========================================================= */
 
-/* ---------- 1) Variables del tema ---------- */
+/* ---------- 1) Variables del tema (DARK BY DEFAULT) ---------- */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
   /* Tipografía */
   --serif: "Playfair Display", Georgia, "Times New Roman", Times, serif;
   --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Paleta — Light */
-  --bg-top: #fbfaf7;
-  --bg-bottom: #f1f6ff;
-  --paper: #ffffff;
-  --ink: #141414;
-  --muted: rgba(20, 20, 20, 0.62);
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.08);
-  --card: rgba(31, 41, 55, 0.86);
-  --card-ink: rgba(255, 255, 255, 0.92);
-  --rule: rgba(20, 20, 20, 0.16);
-  --hair: rgba(0, 0, 0, 0.12);
-  --hover: rgba(0, 0, 0, 0.035);
-  --glass: rgba(251, 250, 247, 0.92);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 18px 60px rgba(0, 0, 0, 0.08);
-
-  /* Alias de compatibilidad */
-  --bg: var(--bg-top);
-  --fg: var(--ink);
-  --cream: #f5eee6;
-
-  /* Layout */
-  --max: 980px;
-  --split-at: 520px;
-
-  /* Hero */
-  --hero-h: clamp(210px, 26vw, 320px);
-  --hero-max: 420px;
-
-  /* Imágenes: color con desaturación sutil */
-  --img-bw: 0.15;
-
-  /* Transiciones */
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --t-fast: 0.2s;
-  --t-mid: 0.35s;
-  --t-slow: 0.5s;
-}
-
-/* ---------- 1b) Modo oscuro ---------- */
-[data-theme="dark"] {
-  color-scheme: dark;
-
+  /* Paleta — Dark (Default) */
   --bg-top: #0f1117;
   --bg-bottom: #0d1220;
   --paper: #1a1d27;
@@ -73,9 +29,59 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 18px 60px rgba(0, 0, 0, 0.4);
+
+  --bg-premium: #0a0a0a;
+
+  /* Alias de compatibilidad */
+  --bg: var(--bg-top);
+  --fg: var(--ink);
   --cream: #1e2030;
 
+  /* Layout */
+  --max: 980px;
+  --split-at: 520px;
+
+  /* Hero */
+  --hero-h: clamp(210px, 26vw, 320px);
+  --hero-max: 420px;
+
+  /* Imágenes: color con desaturación sutil (dark mode = pleno color o ligero mute) */
   --img-bw: 0;
+
+  /* Transiciones */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 0.2s;
+  --t-mid: 0.35s;
+  --t-slow: 0.5s;
+}
+
+/* ---------- 1b) Modo Claro (Opt-in) ---------- */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-top: #fbfaf7;
+  --bg-bottom: #f1f6ff;
+  --paper: #ffffff;
+  --ink: #141414;
+  --muted: rgba(20, 20, 20, 0.62);
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --card: rgba(31, 41, 55, 0.86);
+  --card-ink: rgba(255, 255, 255, 0.92);
+  /* Mantener contraste en cartas oscuras si las hay */
+  --rule: rgba(20, 20, 20, 0.16);
+  --hair: rgba(0, 0, 0, 0.12);
+  --hover: rgba(0, 0, 0, 0.035);
+  --glass: rgba(251, 250, 247, 0.92);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 18px 60px rgba(0, 0, 0, 0.08);
+  --cream: #f5eee6;
+
+  --bg-premium: #111;
+  /* Fallback oscuro para secciones premium */
+
+  --img-bw: 0.15;
 }
 
 /* ---------- 2) Reset & base ---------- */
