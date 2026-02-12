@@ -1,0 +1,9 @@
+---
+import Base from "../../layouts/Base.astro";
+import HomeCover from "../../components/HomeCover.astro";
+import { t } from "../../i18n";
+---
+
+<Base title="Lumen Arkhé" description={t("meta.desc_home", "en")}>
+  <HomeCover />
+</Base>

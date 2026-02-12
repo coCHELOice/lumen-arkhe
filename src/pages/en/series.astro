@@ -1,0 +1,52 @@
+---
+import Base from "../../layouts/Base.astro";
+import { t } from "../../i18n";
+
+const series = [
+  {
+    title: t("series.burocracia.title", "en"),
+    desc: t("series.burocracia.desc", "en"),
+    status: t("series.en_preparacion", "en"),
+  },
+  {
+    title: t("series.tecnica.title", "en"),
+    desc: t("series.tecnica.desc", "en"),
+    status: t("series.en_preparacion", "en"),
+  },
+  {
+    title: t("series.promesa.title", "en"),
+    desc: t("series.promesa.desc", "en"),
+    status: t("series.en_preparacion", "en"),
+  },
+];
+---
+
+<Base title={`${t("series.kicker", "en")} — Lumen Arkhé`} description={t("meta.desc_series", "en")}>
+  <div class="a-content">
+    <p class="a-content__kicker">{t("series.kicker", "en")}</p>
+    <h1 class="a-content__h1">{t("series.h1", "en")}</h1>
+    <p class="a-content__lede">
+      {t("series.lede", "en")}
+    </p>
+
+    <hr class="a-content__divider" />
+
+    <p class="a-content__section-title">{t("series.en_desarrollo", "en")}</p>
+
+    <div class="a-series-grid">
+      {series.map((s) => (
+        <div class="a-series-card">
+          <h3 class="a-series-card__title">{s.title}</h3>
+          <p class="a-series-card__desc">{s.desc}</p>
+          <span class="a-series-card__badge">{s.status}</span>
+        </div>
+      ))}
+    </div>
+
+    <hr class="a-content__divider" />
+
+    <p style="font-size:14px; opacity:0.7;">
+      <a href="/en" style="text-decoration:underline; text-underline-offset:3px;">{t("series.volver", "en")}</a>
+    </p>
+  </div>
+</Base>

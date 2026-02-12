@@ -1,48 +1,63 @@
 ---
+import { getLangFromUrl, langPrefix, switchLangPath, t } from "../i18n";
+import type { Lang } from "../i18n";
+
+const lang: Lang = getLangFromUrl(Astro.url);
+const prefix = langPrefix(lang);
 const siteTitle = "Lumen Arkhé";
 
 const secciones = [
-  { name: "Ensayos", href: "/articulos?sec=Ensayos" },
-  { name: "Reseñas", href: "/articulos?sec=Reseñas" },
-  { name: "Crónica", href: "/articulos?sec=Crónica" },
-  { name: "Archivo PDF", href: "/pdf" },
+  { name: t("nav.ensayos", lang),  href: `${prefix}/articulos?sec=Ensayos` },
+  { name: t("nav.resenas", lang),  href: `${prefix}/articulos?sec=Reseñas` },
+  { name: t("nav.cronica", lang),  href: `${prefix}/articulos?sec=Crónica` },
+  { name: t("nav.archivo", lang),  href: `${prefix}/pdf` },
 ];
+
+const esPath = switchLangPath(Astro.url.pathname, "es");
+const enPath = switchLangPath(Astro.url.pathname, "en");
 ---
 
 <header class="a-head">
   <div class="a-head__top">
     <div class="a-lang">
-      <a class="a-lang__on" href="#" aria-current="true">ES</a>
+      <a class={`a-lang__${lang === "es" ? "on" : "off"}`} href={esPath} aria-current={lang === "es" ? "true" : undefined}>ES</a>
       <span class="a-dot">•</span>
-      <a class="a-lang__off" href="#">EN</a>
+      <a class={`a-lang__${lang === "en" ? "on" : "off"}`} href={enPath} aria-current={lang === "en" ? "true" : undefined}>EN</a>
     </div>
 
     <div class="a-title">
-      <a class="a-title__brand" href="/">{siteTitle.toUpperCase()}</a>
+      <a class="a-title__brand" href={`${prefix}/`}>{siteTitle.toUpperCase()}</a>
     </div>
 
-    <a class="a-ingresa" href="#">INGRESA</a>
+    <div style="display:flex; align-items:center; gap:8px; justify-self:end;">
+      <a class="a-ingresa" href="#">{t("nav.ingresa", lang).toUpperCase()}</a>
+      <button class="a-burger" id="menuBurger" type="button" aria-label={t("nav.abrir_menu", lang)} aria-expanded="false">
+        <span id="burgerIcon">☰</span>
+      </button>
+    </div>
   </div>
 
-  <nav class="a-menu" aria-label="Secciones">
+  <nav class="a-menu" id="mainMenu" aria-label={t("foot.secciones", lang)}>
     {secciones.map((s) => (
       <a class="a-menu__a" href={s.href}>{s.name.toUpperCase()}</a>
     ))}
     <span class="a-bar" aria-hidden="true">|</span>
-    <a class="a-menu__a" href="/newsletter">NEWSLETTER</a>
-    <a class="a-menu__a" href="/articulos">BÚSQUEDA</a>
+    <a class="a-menu__a" href={`${prefix}/newsletter`}>{t("nav.newsletter", lang).toUpperCase()}</a>
+    <a class="a-menu__a" href={`${prefix}/articulos`}>{t("nav.busqueda", lang).toUpperCase()}</a>
   </nav>
 
-  <style>
-    /* Header fijo / legible sobre scroll */
-    .a-head{
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      background: rgba(247, 244, 238, 0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0,0,0,.08);
-    }
-  </style>
+  <script is:inline>
+    (() => {
+      const btn = document.getElementById("menuBurger");
+      const menu = document.getElementById("mainMenu");
+      const icon = document.getElementById("burgerIcon");
+      if (!btn || !menu) return;
+
+      btn.addEventListener("click", () => {
+        const open = menu.classList.toggle("is-open");
+        btn.setAttribute("aria-expanded", String(open));
+        icon.textContent = open ? "✕" : "☰";
+      });
+    })();
+  </script>
 </header>

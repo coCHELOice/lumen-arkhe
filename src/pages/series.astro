@@ -1,26 +1,51 @@
 ---
 import Base from "../layouts/Base.astro";
+
+const series = [
+  {
+    title: "Burocracia mínima",
+    desc: "Exploración de las estructuras burocráticas y su impacto en la vida pública contemporánea.",
+    status: "En preparación",
+  },
+  {
+    title: "Técnica y límite material",
+    desc: "Reflexiones sobre los márgenes de la técnica y las restricciones materiales del hacer.",
+    status: "En preparación",
+  },
+  {
+    title: "Promesa pública y régimen de métricas",
+    desc: "Análisis del discurso público, la cuantificación y la rendición de cuentas.",
+    status: "En preparación",
+  },
+];
 ---
 
 <Base title="Series — Lumen Arkhé" description="Series y dossiers en desarrollo.">
-  <div class="wrap">
-    <p class="kicker">Series</p>
-    <h1>Series y dossiers</h1>
-    <p class="lede">
-      Página mínima. Aquí irán las series (con descripción breve) y sus entradas.
+  <div class="a-content">
+    <p class="a-content__kicker">Series</p>
+    <h1 class="a-content__h1">Series y dossiers</h1>
+    <p class="a-content__lede">
+      Investigaciones editoriales de largo aliento, publicadas en entregas sucesivas.
     </p>
 
-    <hr />
+    <hr class="a-content__divider" />
 
-    <h2 class="section-title">En preparación</h2>
-    <ul>
-      <li>Burocracia mínima</li>
-      <li>Técnica y límite material</li>
-      <li>Promesa pública y régimen de métricas</li>
-    </ul>
+    <p class="a-content__section-title">En desarrollo</p>
 
-    <div class="footer">
-      <p class="small">Volver a <a href="/">Inicio</a>.</p>
+    <div class="a-series-grid">
+      {series.map((s) => (
+        <div class="a-series-card">
+          <h3 class="a-series-card__title">{s.title}</h3>
+          <p class="a-series-card__desc">{s.desc}</p>
+          <span class="a-series-card__badge">{s.status}</span>
+        </div>
+      ))}
     </div>
+
+    <hr class="a-content__divider" />
+
+    <p style="font-size:14px; opacity:0.7;">
+      <a href="/" style="text-decoration:underline; text-underline-offset:3px;">← Volver al inicio</a>
+    </p>
   </div>
 </Base>

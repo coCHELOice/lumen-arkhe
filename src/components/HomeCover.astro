@@ -1,6 +1,10 @@
 ﻿﻿---
 import { getCollection } from "astro:content";
+import { getLangFromUrl, langPrefix, t } from "../i18n";
+import type { Lang } from "../i18n";
 
+const lang: Lang = getLangFromUrl(Astro.url);
+const prefix = langPrefix(lang);
 const siteTitle = "Lumen Arkhé";
 
 const FALLBACK_IMG = "/images/hero/fallback.jpg";
@@ -32,21 +36,26 @@ const featuredItems = heroSource.map((e) => ({
   title: e.data.title,
   excerpt: e.data.deck ?? e.data.description ?? "",
   author: e.data.author ?? siteTitle,
-  href: `/articulos/${e.slug}`,
+  href: `${prefix}/articulos/${e.slug}`,
   image: e.data.hero ?? heroBySlug(e.slug),
 }));
 
-// 4) “Artículos destacados”: últimos 3
+// 4) "Artículos destacados": últimos 3
 const latest = published.slice(0, 3).map((e) => ({
   title: e.data.title,
   deck: e.data.deck ?? e.data.description ?? "",
   date: e.data.date.toISOString().slice(0, 10),
-  href: `/articulos/${e.slug}`,
+  href: `${prefix}/articulos/${e.slug}`,
   tag: e.data.tag ?? e.data.section,
 }));
 
 // 5) Temas: de la data real (máx 8)
 const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).slice(0, 8);
+
+// Textos traducidos
+const tAbrir = lang === "es" ? "Abrir" : "Open";
+const tDestacado = t("hero.destacado", lang);
+const tDestacados = t("hero.destacados", lang);
 ---
 
 <!-- Newsletter popup (cada 15 días) -->
@@ -61,18 +70,18 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
   <div class="nlpop__backdrop" data-close></div>
 
   <div class="nlpop__panel" role="document">
-    <button class="nlpop__x" type="button" aria-label="Cerrar" data-close>×</button>
+    <button class="nlpop__x" type="button" aria-label={t("nl.cerrar", lang)} data-close>×</button>
 
-    <h2 id="nlpop-title" class="nlpop__h">Newsletter</h2>
-    <p class="nlpop__p">Recibe ensayos y actualizaciones editoriales (sin spam).</p>
+    <h2 id="nlpop-title" class="nlpop__h">{t("nl.titulo", lang)}</h2>
+    <p class="nlpop__p">{t("nl.desc", lang)}</p>
 
     <!-- el iframe se inserta SOLO al abrir (mejor velocidad del Home) -->
-    <div class="nlpop__frame" id="nlpopFrame" aria-label="Formulario de suscripción"></div>
+    <div class="nlpop__frame" id="nlpopFrame" aria-label={t("nl.form_label", lang)}></div>
 
     <p class="nlpop__alt">
-      Si no carga el formulario:
+      {t("nl.alt", lang)}
       <a href="https://gregorioaugusto.substack.com/subscribe" target="_blank" rel="noreferrer">
-        suscríbete aquí
+        {t("nl.alt_link", lang)}
       </a>.
     </p>
   </div>
@@ -106,7 +115,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
       iframe.setAttribute("style", "border:1px solid #EEE; background:white;");
       iframe.setAttribute("frameborder", "0");
       iframe.setAttribute("scrolling", "no");
-      iframe.title = "Suscripción Substack";
+      iframe.title = "Substack";
 
       frame.appendChild(iframe);
     };
@@ -138,7 +147,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
   })();
 </script>
 
-<section class="a-hero" data-variant="split" aria-label="Destacado">
+<section class="a-hero" data-variant="split" aria-label={tDestacado}>
   <a class="a-hero__img" href={featuredItems[0].href} aria-label={featuredItems[0].title}>
     <img
       src={featuredItems[0].image}
@@ -149,18 +158,16 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
     />
   </a>
 
-  <!-- Card ya NO es link (para que dots no pierdan el click).
-       El link real es .a-hero__hit (overlay), detrás de los dots. -->
-  <div class="a-hero__card" id="heroCard" aria-label="Abrir destacado">
-    <a class="a-hero__hit" href={featuredItems[0].href} aria-label={`Abrir: ${featuredItems[0].title}`}></a>
+  <div class="a-hero__card" id="heroCard" aria-label={tAbrir}>
+    <a class="a-hero__hit" href={featuredItems[0].href} aria-label={`${tAbrir}: ${featuredItems[0].title}`}></a>
 
-    <div class="a-hero__lines" id="heroDots" role="tablist" aria-label="Destacados">
+    <div class="a-hero__lines" id="heroDots" role="tablist" aria-label={tDestacados}>
       {featuredItems.map((_, i) => (
         <button
           class={`a-dotbtn ${i === 0 ? "is-on" : ""}`}
           type="button"
           data-i={i}
-          aria-label={`Destacado ${i + 1}`}
+          aria-label={`${tDestacado} ${i + 1}`}
         >
           <span></span>
         </button>
@@ -175,12 +182,16 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
   </div>
 
   <script type="application/json" id="heroData" set:html={JSON.stringify(featuredItems)}></script>
+  <script type="application/json" id="heroLang" set:html={JSON.stringify({ abrir: tAbrir })}></script>
 
-  <script is:inline confirm data-astro-rerun>
+  <script is:inline data-astro-rerun>
     (() => {
       const dataEl = document.getElementById("heroData");
+      const langEl = document.getElementById("heroLang");
       let data = [];
+      let langData = { abrir: "Abrir" };
       try { data = JSON.parse(dataEl?.textContent || "[]"); } catch {}
+      try { langData = JSON.parse(langEl?.textContent || "{}"); } catch {}
       if (!Array.isArray(data) || !data.length) return;
 
       const root = document.querySelector(".a-hero");
@@ -196,12 +207,28 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
 
       let idx = 0;
 
-      const render = () => {
+      const render = (animate) => {
         const it = data[idx];
 
+        if (animate) {
+          // Fade out
+          root.classList.add("a-hero--fading");
+          setTimeout(() => {
+            updateContent(it);
+            // Fade in
+            root.classList.remove("a-hero--fading");
+          }, 350);
+        } else {
+          updateContent(it);
+        }
+
+        dots.forEach((b, i) => b.classList.toggle("is-on", i === idx));
+      };
+
+      const updateContent = (it) => {
         if (hit) {
           hit.setAttribute("href", it.href);
-          hit.setAttribute("aria-label", `Abrir: ${it.title}`);
+          hit.setAttribute("aria-label", `${langData.abrir}: ${it.title}`);
         }
         if (title) title.textContent = it.title;
         if (excerpt) excerpt.textContent = it.excerpt;
@@ -215,8 +242,6 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
           img.onerror = () => { img.onerror = null; img.src = "/images/hero/fallback.jpg"; };
           img.setAttribute("src", it.image || "/images/hero/fallback.jpg");
         }
-
-        dots.forEach((b, i) => b.classList.toggle("is-on", i === idx));
       };
 
       dots.forEach((b) => {
@@ -224,7 +249,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
           e.preventDefault();
           e.stopPropagation();
           const n = Number(b.getAttribute("data-i"));
-          if (Number.isFinite(n)) { idx = n; render(); }
+          if (Number.isFinite(n) && n !== idx) { idx = n; render(true); }
         };
       });
 
@@ -236,7 +261,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
         stop();
         window[KEY] = setInterval(() => {
           idx = (idx + 1) % data.length;
-          render();
+          render(true);
         }, 9000);
       };
 
@@ -249,7 +274,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
         else start();
       });
 
-      render();
+      render(false);
       start();
     })();
   </script>
@@ -257,7 +282,7 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
 
 <section class="a-section">
   <div class="a-section__row">
-    <h2 class="a-section__h2">Artículos destacados</h2>
+    <h2 class="a-section__h2">{t("home.articulos_destacados", lang)}</h2>
     <div class="a-section__rule" aria-hidden="true"></div>
   </div>
 
@@ -278,186 +303,12 @@ const temas = Array.from(new Set(published.flatMap((e) => e.data.temas ?? []))).
   </ol>
 
   <div class="a-topics">
-    <span class="a-topics__t">Temas</span>
-    {temas.map((t, i) => (
+    <span class="a-topics__t">{t("home.temas", lang)}</span>
+    {temas.map((tema, i) => (
       <>
-        <a class="a-topics__a" href={`/articulos?tema=${encodeURIComponent(t)}`}>{t}</a>
+        <a class="a-topics__a" href={`${prefix}/articulos?tema=${encodeURIComponent(tema)}`}>{tema}</a>
         {i < temas.length - 1 ? <span class="a-dot">•</span> : null}
       </>
     ))}
   </div>
 </section>
-
-<style>
-  /* Home hero design override — v1 (reversible) */
-  .a-hero[data-variant="split"]{
-    --hero-min-h: clamp(240px, 28vw, 320px);
-    --accent-soft: color-mix(in srgb, #e85b4f 16%, transparent);
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: clamp(10px, 1.4vw, 16px);
-    margin-top: clamp(12px, 1.8vw, 18px);
-    position: relative;
-  }
-
-  @supports not (color: color-mix(in srgb, red, white)) {
-    .a-hero[data-variant="split"] { --accent-soft: rgba(232, 91, 79, 0.16); }
-  }
-
-  .a-hero[data-variant="split"]::before{
-    content:"";
-    position:absolute;
-    inset: -18px -18px;
-    background: linear-gradient(90deg, var(--accent-soft) 0 48%, transparent 48% 100%);
-    border-radius: 22px;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .a-hero__img,
-  .a-hero__card{
-    min-height: var(--hero-min-h);
-  }
-
-  .a-hero__img{
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 18px 60px rgba(0,0,0,.08);
-    display: block;
-  }
-
-  .a-hero__img img{
-    width:100%;
-    height:100%;
-    object-fit: cover;
-    display:block;
-  }
-
-  .a-hero__card{
-    background: rgba(208, 168, 128, 0.92);
-    backdrop-filter: blur(6px);
-    border-radius: 18px;
-    padding: clamp(12px, 1.8vw, 18px);
-    box-shadow: 0 18px 60px rgba(0,0,0,.08);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .a-hero__hit{
-    position:absolute;
-    inset:0;
-    z-index: 1;
-  }
-  .a-hero__lines,
-  .a-hero__h1,
-  .a-hero__p,
-  .a-hero__rule,
-  .a-hero__by{
-    position: relative;
-    z-index: 2;
-  }
-
-  .a-hero__h1{
-    font-size: clamp(24px, 2.6vw, 38px);
-    line-height: .98;
-    letter-spacing: -0.02em;
-    margin: 0 0 10px 0;
-    opacity: .95;
-  }
-
-  .a-hero__p{
-    max-width: 58ch;
-    font-size: clamp(13px, 1.05vw, 15px);
-    line-height: 1.5;
-    margin: 0 0 12px 0;
-    opacity: .95;
-  }
-
-  .a-hero__lines{
-    display:flex;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  .a-dotbtn span{
-    display:block;
-    width: 34px;
-    height: 3px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.55);
-  }
-  .a-dotbtn.is-on span{
-    background: rgba(255,255,255,.98);
-  }
-
-  .a-hero__rule{ opacity: .55; }
-
-  .a-hero__by{
-    letter-spacing: .12em;
-    font-size: 12px;
-    opacity: .9;
-  }
-
-  @media (max-width: 860px){
-    .a-hero[data-variant="split"]{
-      grid-template-columns: 1fr;
-    }
-    .a-hero[data-variant="split"]::before{
-      background: linear-gradient(180deg, var(--accent-soft) 0 34%, transparent 34% 100%);
-    }
-    .a-hero__img,
-    .a-hero__card{ min-height: auto; }
-    .a-hero__img{ aspect-ratio: 16/11; }
-  }
-
-  /* Newsletter popup (cada 15 días) */
-  html.nlpop-open { overflow: hidden; }
-
-  .nlpop { position: fixed; inset: 0; z-index: 100000; }
-  .nlpop[hidden] { display: none; }
-
-  .nlpop__backdrop {
-    position: absolute; inset: 0;
-    background: rgba(0,0,0,.45);
-  }
-
-  .nlpop__panel {
-    position: relative;
-    max-width: 560px;
-    margin: 8vh auto;
-    background: #fff;
-    border: 1px solid rgba(0,0,0,.12);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 18px 60px rgba(0,0,0,.25);
-  }
-
-  .nlpop__x{
-    position:absolute;
-    top:10px; right:10px;
-    width: 36px; height: 36px;
-    border: 1px solid rgba(0,0,0,.15);
-    border-radius: 12px;
-    background:#fff;
-    font-size: 20px;
-    line-height: 1;
-    cursor:pointer;
-  }
-
-  .nlpop__h { margin: 0 0 6px; }
-  .nlpop__p { margin: 0 0 12px; opacity: .85; }
-
-  .nlpop__frame { display: flex; justify-content: center; }
-  .nlpop__frame iframe {
-    width: min(520px, 100%);
-    height: 320px;
-    border-radius: 12px;
-  }
-
-  .nlpop__alt { margin-top: 10px; opacity: .85; }
-
-  @media (max-width: 640px){
-    .nlpop__panel { margin: 6vh 12px; }
-    .nlpop__frame iframe { height: 300px; }
-  }
-</style>

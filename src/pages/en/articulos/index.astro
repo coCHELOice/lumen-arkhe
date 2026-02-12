@@ -1,0 +1,140 @@
+---
+export const prerender = false;
+
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { t } from "../../../i18n";
+
+function toDateSafe(v: any): Date {
+  if (!v) return new Date(0);
+  if (v instanceof Date) return v;
+  const d = new Date(String(v));
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function fmtDate(v: any): string {
+  const d = toDateSafe(v);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// normaliza: sin tildes, lowercase, trim (para filtros robustos)
+function norm(v: any): string {
+  return String(v ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+const siteTitle = "Lumen Arkhé";
+
+const secRaw = Astro.url.searchParams.get("sec") ?? "";
+const temaRaw = Astro.url.searchParams.get("tema") ?? "";
+const qRaw = (Astro.url.searchParams.get("q") ?? "").trim();
+
+const sec = norm(secRaw);
+const tema = norm(temaRaw);
+const q = qRaw.toLowerCase();
+
+const entries = await getCollection("articulos");
+
+const posts = entries
+  .filter((e) => !e.data?.draft)
+  .sort((a, b) => toDateSafe(b.data?.date).getTime() - toDateSafe(a.data?.date).getTime());
+
+const filtered = posts.filter((e) => {
+  const sectionRaw = String(e.data?.section ?? e.data?.seccion ?? "");
+  const section = norm(sectionRaw);
+
+  const tagRaw = String(e.data?.tag ?? e.data?.tema ?? "");
+  const tag = norm(tagRaw);
+
+  const temasRaw = Array.isArray(e.data?.temas)
+    ? e.data.temas
+    : Array.isArray(e.data?.tags)
+    ? e.data.tags
+    : [];
+  const temas = temasRaw.map((t: any) => norm(t));
+
+  const title = String(e.data?.title ?? e.slug);
+  const deck = String(e.data?.deck ?? e.data?.description ?? e.data?.excerpt ?? "");
+  const hay = `${title} ${deck} ${sectionRaw} ${tagRaw} ${temasRaw.join(" ")}`.toLowerCase();
+
+  if (sec && section !== sec) return false;
+  if (tema && !(tag.includes(tema) || temas.includes(tema))) return false;
+  if (q && !hay.includes(q)) return false;
+
+  return true;
+});
+
+const sections = [
+  { label: t("nav.ensayos", "en"), href: "/en/articulos?sec=Ensayos" },
+  { label: t("nav.resenas", "en"), href: "/en/articulos?sec=Reseñas" },
+  { label: t("nav.cronica", "en"), href: "/en/articulos?sec=Crónica" },
+];
+
+const extras = [
+  { label: t("nav.archivo", "en"), href: "/en/pdf" },
+  { label: t("nav.newsletter", "en"), href: "/en/newsletter" },
+];
+---
+
+<Base title={`${t("art.titulo", "en")} — ${siteTitle}`} description={t("meta.desc_art", "en")}>
+  <div class="wrap">
+    <div class="search">
+      <form method="get" action="/en/articulos">
+        {secRaw ? <input type="hidden" name="sec" value={secRaw} /> : null}
+        {temaRaw ? <input type="hidden" name="tema" value={temaRaw} /> : null}
+        <input type="text" name="q" value={qRaw} placeholder={t("art.placeholder", "en")} />
+        <button type="submit">{t("art.buscar", "en")}</button>
+      </form>
+      {(secRaw || temaRaw || qRaw) ? <a class="small" href="/en/articulos">{t("art.limpiar", "en")}</a> : null}
+    </div>
+
+    <hr class="rule" />
+
+    <h1>{t("art.titulo", "en")}</h1>
+
+    {(secRaw || temaRaw || qRaw) ? (
+      <p class="lede">
+        {secRaw ? <span>{t("art.seccion", "en")}: <b>{secRaw}</b>. </span> : null}
+        {temaRaw ? <span>{t("art.tema", "en")}: <b>{temaRaw}</b>. </span> : null}
+        {qRaw ? <span>{t("art.placeholder", "en")}: <b>{qRaw}</b>. </span> : null}
+        <span>{t("art.resultados", "en")}: <b>{filtered.length}</b>.</span>
+      </p>
+    ) : (
+      <p class="lede">{t("art.archivo", "en")}</p>
+    )}
+
+    <ol class="list">
+      {filtered.map((e) => {
+        const title = String(e.data?.title ?? e.slug);
+        const deck = String(e.data?.deck ?? e.data?.description ?? e.data?.excerpt ?? "");
+        const author = String(e.data?.author ?? e.data?.autor ?? "");
+        const section = String(e.data?.section ?? e.data?.seccion ?? "");
+        const date = fmtDate(e.data?.date);
+
+        return (
+          <li class="li">
+            <a href={"/en/articulos/" + e.slug}>
+              <div class="meta">
+                {section ? <span>{section}</span> : null}
+                {date ? <span>{date}</span> : null}
+                {author ? <span>{author}</span> : null}
+              </div>
+              <div class="title">{title}</div>
+              {deck ? <div class="deck">{deck}</div> : null}
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+
+    <footer class="footer">
+      <span>© {new Date().getFullYear()} {siteTitle}.</span>
+    </footer>
+  </div>
+</Base>

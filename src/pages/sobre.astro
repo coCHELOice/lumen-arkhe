@@ -3,24 +3,32 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base title="Sobre — Lumen Arkhé" description="Acerca de Lumen Arkhé.">
-  <div class="wrap">
-    <p class="kicker">Sobre</p>
-    <h1>Qué es Lumen Arkhé</h1>
-    <p class="lede">
+  <div class="a-content">
+    <p class="a-content__kicker">Sobre</p>
+    <h1 class="a-content__h1">Qué es Lumen Arkhé</h1>
+    <p class="a-content__lede">
       Revista de ensayos y archivo: política, burocracia, técnica y vida pública.
       Lectura larga, series y dossier.
     </p>
 
-    <hr />
+    <hr class="a-content__divider" />
 
-    <h2 class="section-title">Contacto</h2>
-    <ul>
-      <li>Newsletter: <a href="/newsletter">Suscripción</a></li>
-      <li>Substack: <a href="https://gregorioaugusto.substack.com" target="_blank" rel="noreferrer">gregorioaugusto.substack.com</a></li>
+    <p class="a-content__section-title">Contacto</p>
+    <ul class="a-contact-list">
+      <li>
+        <span>📬</span>
+        <span>Newsletter: <a href="/newsletter">Suscripción</a></span>
+      </li>
+      <li>
+        <span>📝</span>
+        <span>Substack: <a href="https://gregorioaugusto.substack.com" target="_blank" rel="noreferrer">gregorioaugusto.substack.com</a></span>
+      </li>
     </ul>
 
-    <div class="footer">
-      <p class="small">Volver a <a href="/">Inicio</a>.</p>
-    </div>
+    <hr class="a-content__divider" />
+
+    <p style="font-size:14px; opacity:0.7;">
+      <a href="/" style="text-decoration:underline; text-underline-offset:3px;">← Volver al inicio</a>
+    </p>
   </div>
 </Base>

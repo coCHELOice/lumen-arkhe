@@ -1,0 +1,147 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { t } from "../../i18n";
+
+const substackEmbed = "https://gregorioaugusto.substack.com/embed";
+const substackSubscribe = "https://gregorioaugusto.substack.com/subscribe";
+---
+
+<BaseLayout title="Newsletter">
+  <main class="newsletter">
+    <header class="newsletter__head">
+      <h1>{t("nlp.titulo", "en")}</h1>
+      <p>{t("nlp.desc", "en")}</p>
+    </header>
+
+    <section class="newsletter__grid">
+      <div class="newsletter__card">
+        <h2 class="newsletter__h2">{t("nlp.formulario", "en")}</h2>
+        <p class="newsletter__muted">{t("nlp.toma", "en")}</p>
+
+        <div class="newsletter__embed" aria-label={t("nl.form_label", "en")}>
+          <iframe
+            src={substackEmbed}
+            width="480"
+            height="320"
+            style="border:1px solid #EEE; background:white;"
+            frameborder="0"
+            scrolling="no"
+            title={t("nl.iframe_title", "en")}
+          ></iframe>
+        </div>
+
+        <p class="newsletter__alt">
+          {t("nlp.alt", "en")}
+          <a href={substackSubscribe} target="_blank" rel="noreferrer">{t("nlp.alt_link", "en")}</a>.
+        </p>
+
+        <p class="newsletter__backline">
+          <a class="newsletter__back" href="/en">{t("nlp.volver", "en")}</a>
+        </p>
+      </div>
+
+      <aside class="newsletter__side">
+        <div class="newsletter__card">
+          <h2 class="newsletter__h2">{t("nlp.que_recibiras", "en")}</h2>
+          <ul class="newsletter__list">
+            <li>{t("nlp.li1", "en")}</li>
+            <li>{t("nlp.li2", "en")}</li>
+            <li>{t("nlp.li3", "en")}</li>
+          </ul>
+          <p class="newsletter__muted">{t("nlp.frecuencia", "en")}</p>
+        </div>
+
+        <div class="newsletter__card">
+          <p class="newsletter__muted">
+            {t("nlp.baja", "en")}
+          </p>
+          <a class="newsletter__back" href="/en">{t("nlp.volver", "en")}</a>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <style>
+    .newsletter {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 16px 44px;
+    }
+
+    .newsletter__head h1 {
+      margin: 0 0 6px;
+      font-size: 2rem;
+    }
+
+    .newsletter__head p {
+      margin: 0 0 18px;
+      opacity: 0.85;
+    }
+
+    .newsletter__grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .newsletter__grid { grid-template-columns: 1fr; }
+    }
+
+    .newsletter__card {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.06);
+    }
+
+    .newsletter__h2 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+
+    .newsletter__muted {
+      margin: 0 0 10px;
+      opacity: 0.75;
+      font-size: 0.95rem;
+    }
+
+    .newsletter__embed {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .newsletter__embed iframe {
+      width: min(520px, 100%);
+      height: 320px;
+      border-radius: 12px;
+    }
+
+    .newsletter__alt {
+      margin-top: 12px;
+      opacity: 0.85;
+      font-size: 0.95rem;
+    }
+
+    .newsletter__list {
+      margin: 10px 0 8px;
+      padding-left: 18px;
+    }
+
+    .newsletter__list li { margin: 6px 0; }
+
+    .newsletter__backline { margin-top: 14px; }
+
+    .newsletter__back {
+      display: inline-block;
+      text-decoration: none;
+      font-weight: 650;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      padding: 8px 12px;
+      border-radius: 12px;
+    }
+  </style>
+</BaseLayout>

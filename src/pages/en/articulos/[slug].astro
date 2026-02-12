@@ -1,0 +1,91 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { t } from "../../../i18n";
+
+// 1) Traemos todos los artículos una sola vez
+const entries = await getCollection("articulos");
+
+// 2) Generamos páginas SOLO para los que no son borrador
+export async function getStaticPaths() {
+  const entries = await getCollection("articulos");
+  const published = entries.filter((e) => !e.data.draft);
+  return published.map((e) => ({ params: { slug: e.slug } }));
+}
+
+// 3) Resolvemos el artículo actual por slug
+const { slug } = Astro.params;
+const entry = entries.find((e) => e.slug === slug);
+if (!entry) throw new Error(t("artd.no_encontrado", "en"));
+const { Content } = await entry.render();
+
+const siteTitle = "Lumen Arkhé";
+const title = entry.data.title;
+const deck = String(entry.data.deck ?? entry.data.description ?? entry.data.excerpt ?? "");
+const section = entry.data.section ?? "";
+const author = entry.data.author ?? "";
+const date = entry.data.date ? entry.data.date.toLocaleDateString("en-US") : "";
+const workTitle = String(entry.data.workTitle ?? "");
+const workAuthor = String(entry.data.workAuthor ?? "");
+const workYear = String(entry.data.workYear ?? "");
+const workUrl = String(entry.data.workUrl ?? "");
+
+const chroniclePlace = String(entry.data.chroniclePlace ?? "");
+const chronicleDateRaw = String(entry.data.chronicleDate ?? "");
+const chronicleCase = String(entry.data.chronicleCase ?? "");
+
+const chronicleDateText = (() => {
+  if (!chronicleDateRaw) return "";
+  const d = new Date(chronicleDateRaw);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US");
+})();
+
+---
+
+<Base title={`${title} — ${siteTitle}`} description={deck}>
+  <article class="a-article">
+      <div class="a-article__meta">
+        {section ? <span>{section}</span> : null}
+        {date ? <><span class="a-dot">•</span><span>{date}</span></> : null}
+        {author ? <><span class="a-dot">•</span><span>{author}</span></> : null}
+      </div>
+
+      {/* Hero opcional en artículo: si existe /images/hero/{slug}.jpg o data.hero */}
+      <figure class="a-article__hero">
+        <img
+          src={(entry.data.hero ?? `/images/hero/${entry.slug}.jpg`)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
+        />
+      </figure>
+
+      <h1 class="a-article__h1">{title}</h1>
+      {deck ? <p class="a-article__deck">{deck}</p> : null}
+      
+{section === "Reseñas" && (workTitle || workAuthor || workYear || workUrl) ? (
+  <div class="a-article__meta">
+    <span>{t("artd.obra", "en")}</span>
+    {workTitle ? <><span class="a-dot">•</span><span>{workTitle}</span></> : null}
+    {workAuthor ? <><span class="a-dot">•</span><span>{workAuthor}</span></> : null}
+    {workYear ? <><span class="a-dot">•</span><span>{workYear}</span></> : null}
+    {workUrl ? <><span class="a-dot">•</span><a href={workUrl} target="_blank" rel="noreferrer">Link</a></> : null}
+  </div>
+) : null}
+
+{section === "Crónica" && (chroniclePlace || chronicleDateText || chronicleCase) ? (
+  <div class="a-article__meta">
+    <span>{t("artd.hecho", "en")}</span>
+    {chroniclePlace ? <><span class="a-dot">•</span><span>{chroniclePlace}</span></> : null}
+    {chronicleDateText ? <><span class="a-dot">•</span><span>{chronicleDateText}</span></> : null}
+    {chronicleCase ? <><span class="a-dot">•</span><span>{chronicleCase}</span></> : null}
+  </div>
+) : null}
+
+
+      <div class="a-prose">
+        <Content />
+      </div>
+    </article>
+</Base>

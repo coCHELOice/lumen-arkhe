@@ -1,17 +1,37 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
+import { getLangFromUrl, langPrefix, t } from "../i18n";
+import type { Lang } from "../i18n";
 
 const { title = "Lumen Arkhé", description = "" } = Astro.props;
+const lang: Lang = getLangFromUrl(Astro.url);
+const prefix = langPrefix(lang);
 const year = new Date().getFullYear();
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description ? <meta name="description" content={description} /> : null}
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    {description ? <meta property="og:description" content={description} /> : null}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lumen Arkhé" />
+    <meta name="theme-color" content="#fbfaf7" />
+
+    <!-- Google Fonts: Inter + Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="/styles/atomo.css" />
   </head>
 
@@ -19,10 +39,35 @@ const year = new Date().getFullYear();
     <div class="a-wrap">
       <SiteHeader />
       <slot />
-      <footer class="a-foot">© {year} Lumen Arkhé.</footer>
+
+      <footer class="a-foot">
+        <div class="a-foot__grid">
+          <div>
+            <div class="a-foot__brand">Lumen Arkhé</div>
+            <p class="a-foot__desc">
+              {t("foot.desc", lang)}
+            </p>
+          </div>
+          <div>
+            <div class="a-foot__heading">{t("foot.secciones", lang)}</div>
+            <ul class="a-foot__links">
+              <li><a href={`${prefix}/articulos?sec=Ensayos`}>{t("nav.ensayos", lang)}</a></li>
+              <li><a href={`${prefix}/articulos?sec=Reseñas`}>{t("nav.resenas", lang)}</a></li>
+              <li><a href={`${prefix}/articulos?sec=Crónica`}>{t("nav.cronica", lang)}</a></li>
+              <li><a href={`${prefix}/pdf`}>{t("nav.archivo", lang)}</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="a-foot__heading">{t("foot.mas", lang)}</div>
+            <ul class="a-foot__links">
+              <li><a href={`${prefix}/newsletter`}>{t("nav.newsletter", lang)}</a></li>
+              <li><a href={`${prefix}/sobre`}>{t("foot.sobre", lang)}</a></li>
+              <li><a href="https://gregorioaugusto.substack.com" target="_blank" rel="noreferrer">Substack</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="a-foot__copy">© {year} Lumen Arkhé. {t("foot.derechos", lang)}</div>
+      </footer>
     </div>
   </body>
 </html>
-
-
-
