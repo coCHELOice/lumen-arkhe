@@ -411,215 +411,212 @@ img.no-bw {
   }
 }
 
-/* ---------- 5) Hero / slider ---------- */
+/* ---------- 5) Hero / slider (Rediseño Cinemático) ---------- */
 .a-hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  align-items: stretch;
-  margin-top: 18px;
-  padding-top: 34px;
-}
-
-.a-hero[data-variant="split"] {
-  --hero-min-h: clamp(240px, 28vw, 320px);
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: clamp(10px, 1.4vw, 16px);
   position: relative;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-top: 18px;
+  /* Altura mínima elegante */
+  min-height: clamp(400px, 60vh, 600px);
+  display: flex;
+  align-items: flex-end;
+  /* Texto abajo a la izquierda */
+  background: var(--bg-bottom);
+  box-shadow: var(--shadow-lg);
 }
 
+/* Imagen de fondo inmersiva */
 .a-hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
   display: block;
-  height: var(--hero-h);
-  overflow: hidden;
-  border-radius: 18px;
-  box-shadow: var(--shadow-lg);
   text-decoration: none;
-  max-width: var(--hero-max);
-  margin: 0 auto;
 }
 
 .a-hero__img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  margin: 0;
-  max-width: none;
-  filter: grayscale(0.15) saturate(1.1);
-  transition: transform 0.6s var(--ease), filter var(--t-mid) var(--ease);
+  transition: transform 1.2s var(--ease), filter 1s ease;
+  filter: brightness(0.9);
+  /* Ligeramente más oscura para contraste */
 }
 
-.a-hero__img:hover img {
-  transform: scale(1.03);
-  filter: grayscale(0) saturate(1.2);
+.a-hero:hover .a-hero__img img {
+  transform: scale(1.05);
+  /* Zoom lento y elegante */
+  filter: brightness(1);
 }
 
+/* Tarjeta de contenido: Glassmorphism Flotante */
 .a-hero__card {
-  background: var(--card);
-  color: var(--card-ink);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow:
-    var(--shadow-lg),
-    0 0 0 1px rgba(37, 99, 235, 0.06);
   position: relative;
-  cursor: pointer;
-  height: var(--hero-h);
-  min-height: var(--hero-h);
-  overflow: hidden;
-  transition: box-shadow var(--t-mid) var(--ease);
+  z-index: 10;
+  width: 100%;
+  max-width: 680px;
+  margin: 32px;
+  /* Margen flotante */
+  padding: 40px;
+
+  /* Glassmorphism Efecto */
+  background: rgba(15, 17, 23, 0.75);
+  /* Fondo oscuro translúcido */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  border-radius: 20px;
+  color: #ffffff;
+  /* Texto siempre blanco y legible sobre el glass */
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
 }
 
 .a-hero__card:hover {
-  box-shadow:
-    0 24px 72px rgba(0, 0, 0, 0.14),
-    0 0 0 1px rgba(37, 99, 235, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
-.a-hero__card p,
-.a-hero__card .a-hero__p {
-  color: var(--card-ink);
-  opacity: 0.95;
-}
-
-/* Overlay clickeable del hero */
+/* Link invisible sobre todo el card para UX */
 .a-hero__hit {
   position: absolute;
   inset: 0;
-  z-index: 1;
-  display: block;
+  z-index: 20;
 }
 
+/* Elementos internos */
 .a-hero__lines,
 .a-hero__h1,
 .a-hero__p,
-.a-hero__rule,
 .a-hero__by {
   position: relative;
-  z-index: 2;
+  z-index: 30;
+  /* Encima del hit */
   pointer-events: none;
+  /* Dejar pasar clicks al hit, salvo botones */
 }
 
-/* Los dots del slider sí deben ser clickeables */
-.a-hero__lines {
-  pointer-events: auto;
-}
-
+/* Título Serif Display Grande */
 .a-hero__h1 {
   font-family: var(--serif);
-  font-size: clamp(24px, 2.6vw, 38px);
-  line-height: 0.98;
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1.05;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0 0 10px 0;
-  opacity: 0.95;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-  transition: opacity 0.4s ease;
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .a-hero__p {
-  max-width: 58ch;
-  font-size: clamp(13px, 1.05vw, 15px);
-  line-height: 1.5;
-  margin: 0 0 12px 0;
-  opacity: 0.95;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  overflow: hidden;
-  transition: opacity 0.4s ease;
-}
-
-.a-hero__rule {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.6);
-  margin: 22px 0;
-  opacity: 0.55;
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 50ch;
+  margin: 0 0 24px 0;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .a-hero__by {
   font-size: 11px;
-  letter-spacing: 0.24em;
-  opacity: 0.9;
-  transition: opacity 0.4s ease;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Indicadores del slider (dots/lines) */
+.a-hero__by::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Dots de navegación - Estilo Minimalista */
 .a-hero__lines {
   display: flex;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-#heroDots {
-  position: relative;
-  z-index: 10;
-  gap: 14px;
-}
-
-#heroDots button {
+  gap: 12px;
+  margin-bottom: 20px;
   pointer-events: auto;
 }
 
 .a-dotbtn {
-  background: transparent;
-  border: 0;
+  width: auto;
+  height: 4px;
   padding: 10px 0;
-  margin: 0;
+  /* Área clickeable aumentada */
+  background: transparent;
+  border: none;
   cursor: pointer;
-  width: 72px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.3s;
 }
 
-.a-dotbtn:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.85);
-  outline-offset: 4px;
+.a-dotbtn:hover {
+  opacity: 1;
 }
 
 .a-dotbtn span {
   display: block;
-  width: 64px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.55);
-  border-radius: 999px;
-  transition: background 0.3s, transform 0.3s;
-  pointer-events: none;
+  width: 40px;
+  height: 3px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  transition: all 0.4s var(--ease);
+}
+
+.a-dotbtn.is-on {
+  opacity: 1;
 }
 
 .a-dotbtn.is-on span {
-  background: rgba(255, 255, 255, 0.95);
-  transform: scaleX(1.1);
+  width: 60px;
+  /* Alargado activo */
+  background: var(--accent);
 }
 
-/* Transición fade del slider */
-.a-hero--fading .a-hero__h1,
-.a-hero--fading .a-hero__p,
-.a-hero--fading .a-hero__by,
-.a-hero--fading .a-hero__img img {
-  opacity: 0;
+.a-hero__rule {
+  display: none;
 }
 
-@media (max-width: 860px) {
+/* Eliminamos la regla antigua */
 
-  .a-hero,
-  .a-hero[data-variant="split"] {
-    grid-template-columns: 1fr;
+/* Responsive: En móvil, la tarjeta ocupa más y la imagen es el fondo */
+@media (max-width: 768px) {
+  .a-hero {
+    min-height: 500px;
+    align-items: flex-end;
   }
 
-  .a-hero__img,
   .a-hero__card {
-    height: auto;
-    min-height: auto;
+    margin: 16px;
+    padding: 24px;
+    width: auto;
+
+    /* Fondo más sólido en móvil para legibilidad */
+    background: rgba(15, 17, 23, 0.85);
+    backdrop-filter: blur(16px);
   }
 
-  .a-hero__img {
-    aspect-ratio: 16 / 11;
-    max-width: none;
+  .a-hero__h1 {
+    font-size: 28px;
+  }
+
+  .a-hero__p {
+    font-size: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
   }
 }
 
@@ -1315,45 +1312,51 @@ h1 {
   }
 }
 
-/* ---------- 10) Footer ---------- */
+/* ---------- 10) Footer Premium ---------- */
 .a-foot {
-  margin-top: 48px;
-  padding: 40px 22px 32px;
-  border-top: 1px solid var(--hair);
-  font-size: 13px;
-  color: var(--muted);
-  background: linear-gradient(to bottom, transparent 0%, var(--hover) 100%);
-  transition: background var(--t-mid) var(--ease), color var(--t-mid) var(--ease);
+  margin-top: 80px;
+  background: var(--bg-premium, #0a0a0a);
+  /* Fallback a negro si no existe la variable */
+  color: #ffffff;
+  padding: 80px 0 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .a-foot__grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 28px;
-  max-width: 1120px;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 60px;
+  max-width: var(--max);
   margin: 0 auto;
+  padding: 0 20px;
 }
 
+/* Marca Principal en el Footer */
 .a-foot__brand {
   font-family: var(--serif);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 6px;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  color: #fff;
+  opacity: 1;
 }
 
 .a-foot__desc {
-  opacity: 0.75;
-  line-height: 1.5;
-  max-width: 36ch;
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.6;
+  max-width: 35ch;
+  color: #a1a1aa;
 }
 
+/* Encabezados de columnas de enlaces */
 .a-foot__heading {
   font-size: 11px;
-  letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.6;
-  margin-bottom: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 24px;
+  font-weight: 600;
 }
 
 .a-foot__links {
@@ -1362,41 +1365,44 @@ h1 {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px;
 }
 
 .a-foot__links a {
   text-decoration: none;
-  transition: color var(--t-fast) var(--ease);
+  color: #d4d4d8;
+  font-size: 15px;
+  transition: color 0.2s, padding-left 0.2s;
+  display: inline-block;
 }
 
 .a-foot__links a:hover {
-  color: var(--accent);
   text-decoration: none;
+  color: #fff;
+  padding-left: 4px;
+  /* Pequeño desplazamiento elegante */
 }
 
 .a-foot__copy {
-  margin-top: 24px;
-  padding-top: 14px;
-  border-top: 1px solid var(--hair);
+  margin-top: 80px;
   text-align: center;
   font-size: 12px;
-  opacity: 0.6;
-  max-width: 1120px;
-  margin-left: auto;
-  margin-right: auto;
+  opacity: 0.3;
+  color: #fff;
+  letter-spacing: 0.05em;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 32px;
 }
 
 @media (max-width: 768px) {
   .a-foot__grid {
     grid-template-columns: 1fr;
-    gap: 20px;
-    text-align: center;
+    gap: 40px;
   }
 
-  .a-foot__desc {
-    max-width: none;
-    margin: 0 auto;
+  .a-foot {
+    margin-top: 40px;
+    padding: 60px 0 30px;
   }
 }
 
