@@ -1,8 +1,18 @@
 ---
 import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const entries = await getCollection("articulos");
+const published = entries.filter((e) => !e.data.draft);
+const totalArticles = published.length;
+const totalWords = published.reduce((sum, e) => {
+  const body = e.body ?? "";
+  return sum + body.split(/\s+/).filter(Boolean).length;
+}, 0);
+const sections = new Set(published.map((e) => e.data.section)).size;
 ---
 
-<Base title="Sobre — Lumen Arkhé" description="Acerca de Lumen Arkhé.">
+<Base title="Sobre — Lumen Arkhé" description="Acerca de Lumen Arkhé: revista de ensayos sobre política, burocracia, técnica y vida pública.">
   <div class="a-content">
     <p class="a-content__kicker">Sobre</p>
     <h1 class="a-content__h1">Qué es Lumen Arkhé</h1>
@@ -10,6 +20,63 @@ import Base from "../layouts/Base.astro";
       Revista de ensayos y archivo: política, burocracia, técnica y vida pública.
       Lectura larga, series y dossier.
     </p>
+
+    <hr class="a-content__divider" />
+
+    <!-- Estadísticas -->
+    <div class="a-stats">
+      <div class="a-stat">
+        <div class="a-stat__value">{totalArticles}</div>
+        <div class="a-stat__label">Artículos</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat__value">{Math.round(totalWords / 1000)}k</div>
+        <div class="a-stat__label">Palabras</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat__value">{sections}</div>
+        <div class="a-stat__label">Secciones</div>
+      </div>
+    </div>
+
+    <hr class="a-content__divider" />
+
+    <p class="a-content__section-title">Propósito editorial</p>
+    <div class="a-about-prose">
+      <p>
+        <strong>Lumen Arkhé</strong> es un proyecto editorial independiente dedicado al ensayo de largo aliento.
+        Cada texto busca iluminar los mecanismos ocultos del poder público, la técnica
+        y la administración del Estado.
+      </p>
+      <p>
+        El nombre combina <em>lumen</em> (luz, claridad) con <em>arkhé</em> (principio, origen, gobierno):
+        la luz que busca el principio de las cosas. Es una invitación a pensar con rigor sobre los fundamentos
+        de la vida colectiva.
+      </p>
+      <p>
+        Se publican ensayos, reseñas y crónicas organizados en secciones temáticas y series editoriales.
+        Todo el contenido está disponible en la web de forma gratuita. Periódicamente se compilan
+        números en formato PDF para lectura offline o impresión.
+      </p>
+    </div>
+
+    <hr class="a-content__divider" />
+
+    <p class="a-content__section-title">Secciones</p>
+    <div class="a-about-sections">
+      <div class="a-about-section">
+        <h3>Ensayos</h3>
+        <p>Textos de largo aliento sobre política, burocracia, instituciones y vida pública.</p>
+      </div>
+      <div class="a-about-section">
+        <h3>Reseñas</h3>
+        <p>Lecturas críticas de obras relevantes: libros, informes y documentos públicos.</p>
+      </div>
+      <div class="a-about-section">
+        <h3>Crónica</h3>
+        <p>Relatos situados: casos, lugares y momentos que revelan dinámicas del poder.</p>
+      </div>
+    </div>
 
     <hr class="a-content__divider" />
 
@@ -31,4 +98,59 @@ import Base from "../layouts/Base.astro";
       <a href="/" style="text-decoration:underline; text-underline-offset:3px;">← Volver al inicio</a>
     </p>
   </div>
+
+  <style>
+    .a-about-prose {
+      max-width: 65ch;
+    }
+
+    .a-about-prose p {
+      font-size: 16px;
+      line-height: 1.7;
+      margin: 0 0 16px;
+      opacity: 0.88;
+    }
+
+    .a-about-prose strong {
+      font-weight: 600;
+    }
+
+    .a-about-prose em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .a-about-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .a-about-section {
+      padding: 20px;
+      border: 1px solid var(--hair);
+      border-radius: 12px;
+      background: var(--paper);
+      transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    }
+
+    .a-about-section:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .a-about-section h3 {
+      font-family: var(--serif);
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .a-about-section p {
+      font-size: 14px;
+      opacity: 0.75;
+      line-height: 1.5;
+      margin: 0;
+    }
+  </style>
 </Base>

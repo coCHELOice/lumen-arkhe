@@ -6,10 +6,12 @@ import { getSiteSettings } from "../utils/settings";
 import { ClientRouter } from 'astro:transitions';
 
 const settings = await getSiteSettings();
-const { title = settings.siteTitle, description = settings.siteDescription } = Astro.props;
+const { title = settings.siteTitle, description = settings.siteDescription, image } = Astro.props;
 const lang: Lang = getLangFromUrl(Astro.url);
 const prefix = langPrefix(lang);
 const year = new Date().getFullYear();
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -19,6 +21,7 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
     <ClientRouter />
 
     <!-- Open Graph -->
@@ -26,6 +29,15 @@ const year = new Date().getFullYear();
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={settings.siteTitle} />
+    <meta property="og:url" content={canonicalUrl} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
     <meta name="theme-color" content="#fbfaf7" id="meta-theme" />
     
     <!-- Favicon -->

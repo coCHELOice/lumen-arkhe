@@ -1,7 +1,47 @@
 ---
 import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
 
-const series = [
+const entries = await getCollection("articulos");
+const published = entries
+  .filter((e) => !e.data.draft)
+  .sort((a, b) => a.slug.localeCompare(b.slug));
+
+// Detectar series reales: artículos con prefijo común y >= 2 capítulos
+const seriesMap = new Map<string, typeof published>();
+for (const e of published) {
+  const parts = e.slug.split("-");
+  if (parts.length >= 3) {
+    const candidate = parts.slice(0, 2).join("-");
+    const matching = published.filter(
+      (a) => a.slug.startsWith(candidate + "-") && !a.slug.endsWith("-indice")
+    );
+    if (matching.length >= 2 && !seriesMap.has(candidate)) {
+      seriesMap.set(candidate, matching);
+    }
+  }
+}
+
+// Construir array de series reales
+const realSeries = Array.from(seriesMap.entries()).map(([prefix, arts]) => {
+  const indexArticle = published.find((e) => e.slug === prefix + "-indice");
+  const title = indexArticle?.data.title ?? arts[0].data.title.split(":")[0].trim();
+  const desc = indexArticle?.data.deck ?? indexArticle?.data.description ?? arts[0].data.deck ?? "";
+  return {
+    title,
+    desc,
+    count: arts.length,
+    href: indexArticle ? `/articulos/${indexArticle.slug}` : `/articulos/${arts[0].slug}`,
+    status: "Publicada",
+    articles: arts.map((a) => ({
+      title: a.data.title,
+      href: `/articulos/${a.slug}`,
+    })),
+  };
+});
+
+// Series en preparación (las que no tienen artículos aún)
+const plannedSeries = [
   {
     title: "Burocracia mínima",
     desc: "Exploración de las estructuras burocráticas y su impacto en la vida pública contemporánea.",
@@ -20,7 +60,7 @@ const series = [
 ];
 ---
 
-<Base title="Series — Lumen Arkhé" description="Series y dossiers en desarrollo.">
+<Base title="Series — Lumen Arkhé" description="Series y dossiers editoriales.">
   <div class="a-content">
     <p class="a-content__kicker">Series</p>
     <h1 class="a-content__h1">Series y dossiers</h1>
@@ -28,12 +68,40 @@ const series = [
       Investigaciones editoriales de largo aliento, publicadas en entregas sucesivas.
     </p>
 
+    {realSeries.length > 0 && (
+      <>
+        <hr class="a-content__divider" />
+        <p class="a-content__section-title">Publicadas</p>
+
+        <div class="a-series-grid">
+          {realSeries.map((s) => (
+            <a class="a-series-card a-series-card--live" href={s.href} style="text-decoration:none;">
+              <h3 class="a-series-card__title">{s.title}</h3>
+              <p class="a-series-card__desc">{s.desc}</p>
+              <div class="a-series-card__footer">
+                <span class="a-series-card__badge a-series-card__badge--live">{s.count} capítulos</span>
+                <div class="a-series-card__progress">
+                  <div class="a-series-card__bar" style={`width: ${Math.min(100, (s.count / 8) * 100)}%`}></div>
+                </div>
+              </div>
+              <ul class="a-series-card__chapters">
+                {s.articles.slice(0, 4).map((a) => (
+                  <li>{a.title}</li>
+                ))}
+                {s.articles.length > 4 && <li style="opacity:0.5;">+{s.articles.length - 4} más…</li>}
+              </ul>
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+
     <hr class="a-content__divider" />
 
     <p class="a-content__section-title">En desarrollo</p>
 
     <div class="a-series-grid">
-      {series.map((s) => (
+      {plannedSeries.map((s) => (
         <div class="a-series-card">
           <h3 class="a-series-card__title">{s.title}</h3>
           <p class="a-series-card__desc">{s.desc}</p>
@@ -48,4 +116,66 @@ const series = [
       <a href="/" style="text-decoration:underline; text-underline-offset:3px;">← Volver al inicio</a>
     </p>
   </div>
+
+  <style>
+    .a-series-card--live {
+      display: block;
+      cursor: pointer;
+    }
+
+    .a-series-card--live:hover {
+      text-decoration: none;
+    }
+
+    .a-series-card__footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .a-series-card__badge--live {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .a-series-card__progress {
+      flex: 1;
+      height: 5px;
+      background: var(--hair);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .a-series-card__bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.5s var(--ease);
+    }
+
+    .a-series-card__chapters {
+      list-style: none;
+      padding: 0;
+      margin: 14px 0 0;
+      border-top: 1px solid var(--hair);
+      padding-top: 12px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .a-series-card__chapters li {
+      opacity: 0.75;
+      line-height: 1.4;
+    }
+
+    .a-series-card__chapters li::before {
+      content: "→ ";
+      color: var(--accent);
+      opacity: 0.6;
+    }
+  </style>
 </Base>

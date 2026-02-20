@@ -1,15 +1,82 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
 import { t } from "../../i18n";
+
+const entries = await getCollection("articulos");
+const published = entries.filter((e) => !e.data.draft);
+const totalArticles = published.length;
+const totalWords = published.reduce((sum, e) => {
+  const body = e.body ?? "";
+  return sum + body.split(/\s+/).filter(Boolean).length;
+}, 0);
+const sections = new Set(published.map((e) => e.data.section)).size;
 ---
 
-<Base title={`${t("sobre.kicker", "en")} — Lumen Arkhé`} description={t("meta.desc_sobre", "en")}>
+<Base title={`${t("sobre.kicker", "en")} — Lumen Arkhé`} description="About Lumen Arkhé: an essay journal on politics, bureaucracy, technology and public life.">
   <div class="a-content">
     <p class="a-content__kicker">{t("sobre.kicker", "en")}</p>
     <h1 class="a-content__h1">{t("sobre.h1", "en")}</h1>
     <p class="a-content__lede">
       {t("sobre.lede", "en")}
     </p>
+
+    <hr class="a-content__divider" />
+
+    <!-- Stats -->
+    <div class="a-stats">
+      <div class="a-stat">
+        <div class="a-stat__value">{totalArticles}</div>
+        <div class="a-stat__label">Articles</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat__value">{Math.round(totalWords / 1000)}k</div>
+        <div class="a-stat__label">Words</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat__value">{sections}</div>
+        <div class="a-stat__label">Sections</div>
+      </div>
+    </div>
+
+    <hr class="a-content__divider" />
+
+    <p class="a-content__section-title">Editorial Purpose</p>
+    <div class="a-about-prose">
+      <p>
+        <strong>Lumen Arkhé</strong> is an independent editorial project dedicated to long-form essays.
+        Each text seeks to illuminate the hidden mechanisms of public power, technology,
+        and state administration.
+      </p>
+      <p>
+        The name combines <em>lumen</em> (light, clarity) with <em>arkhé</em> (principle, origin, governance):
+        the light that seeks the foundation of things. It is an invitation to think rigorously about the
+        fundamentals of collective life.
+      </p>
+      <p>
+        We publish essays, reviews and chronicles organized into thematic sections and editorial series.
+        All content is freely available on the web. Periodically, issues are compiled
+        in PDF format for offline reading or printing.
+      </p>
+    </div>
+
+    <hr class="a-content__divider" />
+
+    <p class="a-content__section-title">Sections</p>
+    <div class="a-about-sections">
+      <div class="a-about-section">
+        <h3>Essays</h3>
+        <p>Long-form texts on politics, bureaucracy, institutions, and public life.</p>
+      </div>
+      <div class="a-about-section">
+        <h3>Reviews</h3>
+        <p>Critical readings of relevant works: books, reports, and public documents.</p>
+      </div>
+      <div class="a-about-section">
+        <h3>Chronicle</h3>
+        <p>Situated accounts: cases, places and moments that reveal power dynamics.</p>
+      </div>
+    </div>
 
     <hr class="a-content__divider" />
 
@@ -31,4 +98,59 @@ import { t } from "../../i18n";
       <a href="/en" style="text-decoration:underline; text-underline-offset:3px;">{t("sobre.volver", "en")}</a>
     </p>
   </div>
+
+  <style>
+    .a-about-prose {
+      max-width: 65ch;
+    }
+
+    .a-about-prose p {
+      font-size: 16px;
+      line-height: 1.7;
+      margin: 0 0 16px;
+      opacity: 0.88;
+    }
+
+    .a-about-prose strong {
+      font-weight: 600;
+    }
+
+    .a-about-prose em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .a-about-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .a-about-section {
+      padding: 20px;
+      border: 1px solid var(--hair);
+      border-radius: 12px;
+      background: var(--paper);
+      transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    }
+
+    .a-about-section:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .a-about-section h3 {
+      font-family: var(--serif);
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .a-about-section p {
+      font-size: 14px;
+      opacity: 0.75;
+      line-height: 1.5;
+      margin: 0;
+    }
+  </style>
 </Base>

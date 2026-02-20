@@ -148,7 +148,7 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
   (() => {
     const KEY = "lumen_newsletter_popup_ts_v1";
     const TTL_MS = 15 * 24 * 60 * 60 * 1000;
-    const DELAY_MS = 900;
+    const SCROLL_THRESHOLD = 0.5; // 50% of page
 
     const now = Date.now();
     let last = 0;
@@ -160,6 +160,8 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
     const el = document.getElementById("nlpop");
     const frame = document.getElementById("nlpopFrame");
     if (!el) return;
+
+    let shown = false;
 
     const ensureIframe = () => {
       if (!frame || frame.firstElementChild) return;
@@ -178,6 +180,8 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
     };
 
     const open = () => {
+      if (shown) return;
+      shown = true;
       try { localStorage.setItem(KEY, String(Date.now())); } catch {}
       ensureIframe();
       el.hidden = false;
@@ -189,7 +193,17 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
       document.documentElement.classList.remove("nlpop-open");
     };
 
-    const t = window.setTimeout(open, DELAY_MS);
+    // Scroll-triggered: show after user scrolls 50% of the page
+    const onScroll = () => {
+      if (shown) return;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollHeight > 0 && (window.scrollY / scrollHeight) >= SCROLL_THRESHOLD) {
+        open();
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     el.addEventListener("click", (e) => {
       const target = e.target;
@@ -199,8 +213,6 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
     document.addEventListener("keydown", (e) => {
       if (!el.hidden && e.key === "Escape") close();
     });
-
-    window.addEventListener("beforeunload", () => window.clearTimeout(t));
   })();
 </script>
 
@@ -208,9 +220,10 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
   <a class="a-hero__img" href={featuredItems[0].href} aria-label={featuredItems[0].title}>
     <img
       src={featuredItems[0].image}
-      alt=""
-      loading="lazy"
+      alt={featuredItems[0].title}
+      loading="eager"
       decoding="async"
+      fetchpriority="high"
       onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
     />
   </a>
@@ -380,7 +393,7 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
         <a class="a-feat-item__img" href={p.href} aria-hidden="true" tabindex="-1">
           <img
             src={p.image}
-            alt=""
+            alt={p.title}
             loading="lazy"
             decoding="async"
             onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
@@ -440,14 +453,20 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
 {carouselItems.length > 0 && (
   <section class="a-section">
     <div class="a-carousel">
-      <h2 class="a-carousel__h">{tRecientes}</h2>
-      <div class="a-carousel__track">
+      <div class="a-carousel__header">
+        <h2 class="a-carousel__h">{tRecientes}</h2>
+        <div class="a-carousel__nav">
+          <button class="a-carousel__btn" id="carouselPrev" type="button" aria-label={lang === "es" ? "Anterior" : "Previous"} disabled>←</button>
+          <button class="a-carousel__btn" id="carouselNext" type="button" aria-label={lang === "es" ? "Siguiente" : "Next"}>→</button>
+        </div>
+      </div>
+      <div class="a-carousel__track" id="carouselTrack">
         {carouselItems.map((item) => (
           <a class="a-carousel__card" href={item.href}>
             <img
               class="a-carousel__thumb"
               src={item.image}
-              alt=""
+              alt={item.title}
               loading="lazy"
               decoding="async"
               onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
@@ -460,5 +479,35 @@ const tRecientes = lang === "es" ? "Artículos recientes" : "Recent articles";
         ))}
       </div>
     </div>
+
+    <script is:inline>
+      (() => {
+        const track = document.getElementById("carouselTrack");
+        const prev = document.getElementById("carouselPrev");
+        const next = document.getElementById("carouselNext");
+        if (!track || !prev || !next) return;
+
+        const scrollAmount = 268; // card width (240) + gap (14) + margin
+
+        const updateButtons = () => {
+          prev.disabled = track.scrollLeft <= 4;
+          next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+        };
+
+        prev.addEventListener("click", () => {
+          track.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        });
+
+        next.addEventListener("click", () => {
+          track.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        });
+
+        track.addEventListener("scroll", updateButtons, { passive: true });
+        updateButtons();
+
+        // Re-check after any layout shift
+        window.addEventListener("resize", updateButtons, { passive: true });
+      })();
+    </script>
   </section>
 )}

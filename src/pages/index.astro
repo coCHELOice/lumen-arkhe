@@ -1,9 +1,29 @@
 ---
 import Base from "../layouts/Base.astro";
 import HomeCover from "../components/HomeCover.astro";
+
+// JSON-LD structured data for homepage
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Lumen Arkhé",
+  url: "https://lumenarkhe.com",
+  description: "Revista de ensayos: política, burocracia, técnica y vida pública.",
+  publisher: {
+    "@type": "Organization",
+    name: "Lumen Arkhé",
+    url: "https://lumenarkhe.com",
+  },
+  inLanguage: ["es", "en"],
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://lumenarkhe.com/articulos?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+});
 ---
 
 <Base title="Lumen Arkhé" description="Revista de ensayos: política, burocracia, técnica y vida pública.">
+  <script type="application/ld+json" set:html={jsonLd} />
   <HomeCover />
 </Base>
-

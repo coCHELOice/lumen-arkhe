@@ -1,0 +1,121 @@
+---
+import Base from "../layouts/Base.astro";
+import { getLangFromUrl, langPrefix } from "../i18n";
+import type { Lang } from "../i18n";
+
+const lang: Lang = getLangFromUrl(Astro.url);
+const prefix = langPrefix(lang);
+
+const texts = {
+  es: {
+    title: "Página no encontrada",
+    heading: "404",
+    sub: "Esta página no existe o fue movida.",
+    back: "← Volver al inicio",
+    search: "Buscar artículos",
+  },
+  en: {
+    title: "Page not found",
+    heading: "404",
+    sub: "This page doesn't exist or has been moved.",
+    back: "← Back to home",
+    search: "Search articles",
+  },
+};
+
+const t = texts[lang];
+---
+
+<Base title={`${t.title} — Lumen Arkhé`} description={t.sub}>
+  <div class="a-404">
+    <div class="a-404__glyph" aria-hidden="true">⌀</div>
+    <h1 class="a-404__h1">{t.heading}</h1>
+    <p class="a-404__sub">{t.sub}</p>
+    <div class="a-404__actions">
+      <a class="a-404__btn" href={`${prefix}/`}>{t.back}</a>
+      <a class="a-404__btn a-404__btn--ghost" href={`${prefix}/articulos`}>{t.search}</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .a-404 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 60vh;
+    padding: 60px 20px;
+  }
+
+  .a-404__glyph {
+    font-size: 80px;
+    opacity: 0.15;
+    margin-bottom: 8px;
+    animation: pulse404 3s ease-in-out infinite;
+  }
+
+  .a-404__h1 {
+    font-family: var(--serif);
+    font-size: clamp(64px, 10vw, 120px);
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--ink), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .a-404__sub {
+    font-size: 18px;
+    opacity: 0.65;
+    margin: 16px 0 32px;
+    max-width: 40ch;
+  }
+
+  .a-404__actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .a-404__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    background: var(--accent);
+    color: #fff;
+    transition: all 0.25s var(--ease);
+  }
+
+  .a-404__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    text-decoration: none;
+    color: #fff;
+  }
+
+  .a-404__btn--ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--hair);
+  }
+
+  .a-404__btn--ghost:hover {
+    background: var(--hover);
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+  }
+
+  @keyframes pulse404 {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.25; transform: scale(1.05); }
+  }
+</style>

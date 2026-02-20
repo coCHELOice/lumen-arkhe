@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block CMS admin pages
+Disallow: /keystatic
+Disallow: /api/keystatic
+
+# Block print-only pages
+Disallow: /print/
+
+# Sitemap
+Sitemap: https://lumenarkhe.com/sitemap-index.xml

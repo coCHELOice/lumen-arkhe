@@ -75,12 +75,14 @@ if (seriesPrefix) {
 }
 
 const articleUrl = `https://lumenarkhe.com/en/articulos/${slug}`;
+const heroImage = entry.data.hero ?? `/images/hero/${entry.slug}.jpg`;
 
 const jsonLd = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "Article",
   headline: title,
   description: deck,
+  image: heroImage,
   author: { "@type": "Person", name: author || "Lumen Arkhé" },
   publisher: { "@type": "Organization", name: "Lumen Arkhé" },
   datePublished: isoDate,
@@ -91,7 +93,7 @@ const jsonLd = JSON.stringify({
 });
 ---
 
-<Base title={`${title} — ${siteTitle}`} description={deck}>
+<Base title={`${title} — ${siteTitle}`} description={deck} image={heroImage}>
   <script type="application/ld+json" set:html={jsonLd} />
 
   <div class="a-progress" id="scrollProgress"></div>
@@ -115,10 +117,11 @@ const jsonLd = JSON.stringify({
 
       <figure class="a-article__hero">
         <img
-          src={(entry.data.hero ?? `/images/hero/${entry.slug}.jpg`)}
-          alt=""
-          loading="lazy"
+          src={heroImage}
+          alt={title}
+          loading="eager"
           decoding="async"
+          fetchpriority="high"
           onerror="this.onerror=null;this.src='/images/hero/fallback.jpg';"
         />
       </figure>
