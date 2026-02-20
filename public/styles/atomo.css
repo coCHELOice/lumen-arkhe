@@ -3026,6 +3026,7 @@ html.nlpop-open {
 }
 
 /* ---------- 36) Zen Mode (Distraction-Free Reading) ---------- */
+/* Hide all distracting UI elements */
 html.zen-mode .a-header,
 html.zen-mode .a-head,
 html.zen-mode .a-footer,
@@ -3037,46 +3038,44 @@ html.zen-mode .a-related,
 html.zen-mode .a-progress,
 html.zen-mode .a-article-hero-cine__meta,
 html.zen-mode .a-back-top,
-html.zen-mode .a-backtop {
+html.zen-mode .a-backtop,
+html.zen-mode .a-bookmark {
   display: none !important;
 }
 
-html.zen-mode {
-  --zen-bg: #faf9f6;
-}
-
-html.zen-mode body {
-  background: var(--zen-bg);
-}
-
+/* Strip cinematic hero to bare minimum — no image, no overlay, no fancy styling */
 html.zen-mode .a-article-hero-cine {
-  height: auto;
-  min-height: 0;
-  overflow: visible;
-  background: transparent !important;
-  box-shadow: none;
-  border-radius: 0;
-  margin-bottom: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
+  align-items: flex-start !important;
 }
 
-html.zen-mode .a-article-hero-cine__img {
-  display: none;
-}
-
+html.zen-mode .a-article-hero-cine__img,
 html.zen-mode .a-article-hero-cine__overlay {
-  display: none;
+  display: none !important;
 }
 
+/* Hero content: strip inline white color, remove animation */
 html.zen-mode .a-article-hero-cine__content {
-  position: relative;
+  position: relative !important;
+  z-index: auto !important;
   color: var(--ink) !important;
   text-align: left;
-  padding: 60px 20px 40px;
+  padding: 48px 20px 24px;
   max-width: 720px;
   margin: 0 auto;
+  animation: none !important;
 }
 
-html.zen-mode .a-article-hero-cine__content * {
+html.zen-mode .a-article-hero-cine__content *,
+html.zen-mode .a-article-hero-cine__content span,
+html.zen-mode .a-article-hero-cine__content strong,
+html.zen-mode .a-article-hero-cine__content a {
   color: var(--ink) !important;
   text-shadow: none !important;
 }
@@ -3093,12 +3092,10 @@ html.zen-mode .a-article-hero-cine__deck {
   text-shadow: none !important;
 }
 
-html.zen-mode .a-article__meta {
-  color: var(--ink) !important;
-}
-
+/* Article body in zen */
 html.zen-mode .a-article {
   max-width: 660px;
+  margin: 0 auto;
   padding-left: 24px;
   padding-right: 24px;
 }
@@ -3124,61 +3121,31 @@ html.zen-mode .a-prose blockquote {
   opacity: 0.85;
 }
 
-/* Zen: keep zen btn visible and styled for exit */
+/* Zen exit button — fixed bottom-right, inverted from theme */
 html.zen-mode .a-zen-btn {
   background: var(--ink) !important;
   color: var(--paper) !important;
   border-color: var(--ink) !important;
-  position: fixed;
+  position: fixed !important;
   bottom: 24px;
   right: 24px;
-  z-index: 999;
+  z-index: 9999;
   padding: 10px 20px;
   border-radius: 12px;
   font-size: 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   opacity: 1 !important;
 }
 
 html.zen-mode .a-zen-btn:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
 }
 
-/* Dark mode zen overrides */
-html.dark.zen-mode {
-  --zen-bg: #0a0a0a;
-}
-
-html.dark.zen-mode .a-article-hero-cine__content,
-html.dark.zen-mode .a-article-hero-cine__content * {
-  color: #e0e0e0 !important;
-}
-
-html.dark.zen-mode .a-article-hero-cine__h1 {
-  color: #f0f0f0 !important;
-}
-
-html.dark.zen-mode .a-zen-btn {
-  background: #f0f0f0 !important;
-  color: #0a0a0a !important;
-  border-color: #f0f0f0 !important;
-}
-
-/* Zen mode transition */
-html.zen-mode .a-article-hero-cine,
-html.zen-mode .a-article,
-html.zen-mode .a-prose {
-  transition: all 0.4s var(--ease);
-}
-
-/* Zen mode for classic article layout (non-cinematic) */
+/* Classic article layout (non-cinematic, e.g. EN) */
 html.zen-mode .a-article__hero {
   display: none;
-}
-
-html.zen-mode .a-article__meta {
-  justify-content: flex-start;
 }
 
 html.zen-mode .a-article__h1 {
