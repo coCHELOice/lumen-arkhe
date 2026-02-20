@@ -267,7 +267,7 @@ const jsonLd = JSON.stringify({
           bm.splice(idx, 1);
           btn.classList.remove('is-saved');
         } else {
-          bm.push({ slug: slug, title: document.querySelector('.a-article__h1')?.textContent || '', saved: Date.now() });
+          bm.push({ slug: slug, title: (document.querySelector('.a-article-hero-cine__h1') || document.querySelector('.a-article__h1'))?.textContent || '', saved: Date.now() });
           btn.classList.add('is-saved');
         }
         save(bm);
