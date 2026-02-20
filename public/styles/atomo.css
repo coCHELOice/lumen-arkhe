@@ -3052,6 +3052,11 @@ html.zen-mode body {
 html.zen-mode .a-article-hero-cine {
   height: auto;
   min-height: 0;
+  overflow: visible;
+  background: transparent !important;
+  box-shadow: none;
+  border-radius: 0;
+  margin-bottom: 0;
 }
 
 html.zen-mode .a-article-hero-cine__img {
