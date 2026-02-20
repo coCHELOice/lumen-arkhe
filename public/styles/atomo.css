@@ -1896,50 +1896,6 @@ html.nlpop-open {
   }
 }
 
-/* ---------- 19) Modo lectura Zen ---------- */
-.a-zen-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  padding: 6px 12px;
-  border: 1px solid var(--hair);
-  border-radius: 8px;
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-  transition: all var(--t-fast) var(--ease);
-  opacity: 0.7;
-}
-
-.a-zen-btn:hover {
-  opacity: 1;
-  border-color: var(--accent);
-}
-
-html.zen-mode .a-head,
-html.zen-mode .a-foot,
-html.zen-mode .a-article__meta,
-html.zen-mode .a-article__hero,
-html.zen-mode .a-share,
-html.zen-mode .a-related,
-html.zen-mode .a-series-nav,
-html.zen-mode .a-toc,
-html.zen-mode .a-backtop,
-html.zen-mode .a-progress {
-  display: none !important;
-}
-
-html.zen-mode .a-article {
-  max-width: 680px;
-  margin: 60px auto;
-}
-
-html.zen-mode .a-prose {
-  font-size: 20px;
-  line-height: 1.85;
-}
 
 /* ---------- 20) Navegación de serie ---------- */
 .a-series-nav {
@@ -3071,14 +3027,17 @@ html.zen-mode .a-prose {
 
 /* ---------- 36) Zen Mode (Distraction-Free Reading) ---------- */
 html.zen-mode .a-header,
+html.zen-mode .a-head,
 html.zen-mode .a-footer,
+html.zen-mode .a-foot,
 html.zen-mode .a-toc,
 html.zen-mode .a-series-nav,
 html.zen-mode .a-share,
 html.zen-mode .a-related,
 html.zen-mode .a-progress,
 html.zen-mode .a-article-hero-cine__meta,
-html.zen-mode .a-back-top {
+html.zen-mode .a-back-top,
+html.zen-mode .a-backtop {
   display: none !important;
 }
 
@@ -3105,23 +3064,32 @@ html.zen-mode .a-article-hero-cine__overlay {
 
 html.zen-mode .a-article-hero-cine__content {
   position: relative;
-  color: var(--ink);
+  color: var(--ink) !important;
   text-align: left;
   padding: 60px 20px 40px;
   max-width: 720px;
   margin: 0 auto;
 }
 
+html.zen-mode .a-article-hero-cine__content * {
+  color: var(--ink) !important;
+  text-shadow: none !important;
+}
+
 html.zen-mode .a-article-hero-cine__h1 {
-  color: var(--ink);
-  text-shadow: none;
+  color: var(--ink) !important;
+  text-shadow: none !important;
   font-size: clamp(28px, 4vw, 42px);
 }
 
 html.zen-mode .a-article-hero-cine__deck {
-  color: var(--ink);
+  color: var(--ink) !important;
   opacity: 0.75;
-  text-shadow: none;
+  text-shadow: none !important;
+}
+
+html.zen-mode .a-article__meta {
+  color: var(--ink) !important;
 }
 
 html.zen-mode .a-article {
@@ -3153,9 +3121,9 @@ html.zen-mode .a-prose blockquote {
 
 /* Zen: keep zen btn visible and styled for exit */
 html.zen-mode .a-zen-btn {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border-color: var(--ink) !important;
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -3164,6 +3132,7 @@ html.zen-mode .a-zen-btn {
   border-radius: 12px;
   font-size: 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  opacity: 1 !important;
 }
 
 html.zen-mode .a-zen-btn:hover {
@@ -3176,18 +3145,19 @@ html.dark.zen-mode {
   --zen-bg: #0a0a0a;
 }
 
-html.dark.zen-mode .a-article-hero-cine__content {
-  color: #e0e0e0;
+html.dark.zen-mode .a-article-hero-cine__content,
+html.dark.zen-mode .a-article-hero-cine__content * {
+  color: #e0e0e0 !important;
 }
 
 html.dark.zen-mode .a-article-hero-cine__h1 {
-  color: #f0f0f0;
+  color: #f0f0f0 !important;
 }
 
 html.dark.zen-mode .a-zen-btn {
-  background: #f0f0f0;
-  color: #0a0a0a;
-  border-color: #f0f0f0;
+  background: #f0f0f0 !important;
+  color: #0a0a0a !important;
+  border-color: #f0f0f0 !important;
 }
 
 /* Zen mode transition */
